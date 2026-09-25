@@ -1,0 +1,124 @@
+{{define "bibliografie"}} {{template "header" .}}
+
+<article class="article">
+    <h1>Bibliografie</h1>
+    <p class="meta">
+        Surse, cărți, wiki-uri și articole folosite pentru realizarea acestui
+        proiect.
+    </p>
+
+    <div class="article-content">
+        <h3>Cărți</h3>
+        <ul class="biblio">
+            <li>
+                <strong>The little book about OS development</strong>
+                — Erik Helin, Adam Renberg (2015).
+                <a
+                    href="https://littleosbook.github.io/"
+                    target="_blank"
+                    rel="noopener"
+                    >littleosbook.github.io</a
+                >
+            </li>
+            <li>
+                <strong>Modern Operating Systems, 3rd ed.</strong>
+                — Andrew S. Tanenbaum (2007).
+            </li>
+            <li>
+                <strong
+                    >Alte cărți utile și educaționale pe această temă</strong
+                >
+                <a
+                    href="https://wiki.osdev.org/Books"
+                    target="_blank"
+                    rel="noopener"
+                    >OSDev Books</a
+                >
+            </li>
+        </ul>
+
+        <h3>Wiki și documentație</h3>
+        <ul class="biblio">
+            <li>
+                <strong>OSDev Wiki</strong> — referința principală pentru hobby
+                OS development.
+                <a href="https://wiki.osdev.org/" target="_blank" rel="noopener"
+                    >wiki.osdev.org</a
+                >
+            </li>
+            <li>
+                <strong>OSDev — Boot Sequence</strong>
+                <a
+                    href="https://wiki.osdev.org/Boot_Sequence"
+                    target="_blank"
+                    rel="noopener"
+                    >wiki.osdev.org/Boot_Sequence</a
+                >
+            </li>
+            <li>
+                <strong>OSDev — Babystep</strong> (primul bootloader)
+                <a
+                    href="https://wiki.osdev.org/Babystep1"
+                    target="_blank"
+                    rel="noopener"
+                    >wiki.osdev.org/Babystep1</a
+                >
+            </li>
+            <li>
+                <strong>NASM documentation</strong>
+                <a
+                    href="https://www.nasm.us/docs.php"
+                    target="_blank"
+                    rel="noopener"
+                    >nasm.us/docs.php</a
+                >
+            </li>
+            <li>
+                <strong>QEMU documentation</strong>
+                <a
+                    href="https://www.qemu.org/docs/master/"
+                    target="_blank"
+                    rel="noopener"
+                    >qemu.org/docs</a
+                >
+            </li>
+            <li>
+                <strong>Articolul "Operating system" de pe Wikipedia</strong> —
+                oferă o idee asupra sistemelor de operare: ce sunt, ce fac,
+                scurtă istorie, componente, etc
+                <a
+                    href="https://en.wikipedia.org/wiki/Operating_system"
+                    target="_blank"
+                    rel="noopener"
+                    >wikipedia.org/wiki/Operating_system</a
+                >
+            </li>
+        </ul>
+
+        <h3>Specificații</h3>
+        <ul class="biblio">
+            <li>
+                Intel —
+                <em
+                    >Intel 64 and IA-32 Architectures Software Developer’s
+                    Manual</em
+                >
+                <a
+                    href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"
+                    target="_blank"
+                    rel="noopener"
+                    >intel.com (SDM)</a
+                >
+            </li>
+        </ul>
+
+        <h3>Unelte</h3>
+        <ul class="biblio">
+            <li>NASM — Netwide Assembler</li>
+            <li>QEMU — emulator x86</li>
+            <li>Bochs — emulator x86 cu debugger (opțional)</li>
+        </ul>
+    </div>
+</article>
+
+{{template "footer" .}} {{end}}

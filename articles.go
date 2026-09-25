@@ -76,6 +76,10 @@ func articlesListHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, "articles-list", PageData{Title: "Jurnal de dezvoltare", Data: articles})
 }
 
+func bibliographyHandler(w http.ResponseWriter, r *http.Request) {
+	render(w, r, "bibliografie", PageData{Title: "Bibliografie"})
+}
+
 type articleDetailData struct {
 	Article  Article
 	Comments []Comment

@@ -41,6 +41,7 @@ func main() {
 	mux.HandleFunc("GET /articles", articlesListHandler)
 	mux.HandleFunc("GET /articles/{slug}", articleDetailHandler)
 	mux.HandleFunc("POST /articles/{slug}/comments", addCommentHandler)
+	mux.HandleFunc("GET /bibliografie", bibliographyHandler)
 
 	mux.HandleFunc("GET /quiz", quizPageHandler)
 	mux.HandleFunc("POST /quiz/submit", quizSubmitHandler)

@@ -4,16 +4,22 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{{.Title}} · Bootloader — Atestat</title>
+        <title>
+            {{.Title}} · Bootloader-ul — Primul pas înspre crearea unui sistem
+            de operare
+        </title>
         <link rel="stylesheet" href="/static/style.css" />
     </head>
     <body>
         <header class="site-header">
-            <a class="brand" href="/">&gt;_ boot/dev</a>
+            <a class="brand" href="/"
+                >&gt;<span class="cursor">_</span> boot/dev</a
+            >
             <nav>
                 <a href="/">Acasă</a>
                 <a href="/articles">Jurnal</a>
                 <a href="/quiz">Quiz</a>
+                <a href="/bibliografie">Bibliografie</a>
                 {{if .User}} {{if .User.IsAdmin}}<a href="/admin">Admin</a
                 >{{end}}
                 <span class="who">{{.User.Username}}</span>

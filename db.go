@@ -43,14 +43,145 @@ func seedData(db *sql.DB) {
 	}
 	log.Println("Cont admin implicit creat -> utilizator: admin | parola: admin123")
 
-	// Articole — folosim ~~~ pentru fence-uri (echivalent cu ``` în CommonMark)
-	// ca să evităm backtick-uri în string-urile raw Go.
+	// Articole
 	articles := []struct{ slug, title, summary, content string }{
+{
+			"pregatirea-spatiului-de-lucru",
+			"Pregătirea spațiului de lucru",
+			"Uneltele, sistemul gazdă și emulatorul de care ai nevoie înainte să scrii primul octet de bootloader.",
+			`Dezvoltarea unui sistem de operare (sau măcar a primului său program, bootloaderul) începe rar cu o instrucțiune <code>jmp</code>. Începe cu un mediu de lucru predictibil: un assembler, un emulator și un folder în care poți recompila în câteva secunde. Fără astea, fiecare încercare înseamnă să copiezi un binar pe un stick și să repornești un calculator real — lent și, dacă greșești semnătura de boot, frustrant.
+
+Ideea e aceeași ca în *The little book about OS development* (Helin & Renberg): instalezi un set mic de unelte pe un sistem UNIX, apoi rulezi totul într-o **mașină virtuală**. În jurnalul de față nu folosim GRUB și un kernel ELF, ci un bootloader clasic de 512 octeți, asamblat cu NASM și pornit de QEMU ca dischetă. Uneltele se potrivesc totuși aproape 1:1.
+
+### Sistemul de operare gazdă
+
+Toate exemplele presupun un mediu de tip UNIX:
+
+- **Linux** (Ubuntu / Debian / Fedora) — cel mai simplu, pachetele sunt în depozitele oficiale
+- **macOS** — funcționează bine cu Homebrew
+- **Windows** — posibil prin WSL2 (Ubuntu în Windows); evită MinGW pentru NASM + QEMU dacă poți
+
+Cartea originală folosește Ubuntu. Dacă vrei zero surprize, o mașină virtuală Ubuntu (VirtualBox sau UTM) e suficientă, chiar dacă tu lucrezi pe Windows sau pe Mac.
+
+### Uneltele
+
+Ai nevoie de patru lucruri:
+
+1. **NASM** — assemblerul. Sintaxa Intel e mai lizibilă decât assembler-ul GNU, iar <code>-f bin</code> produce exact cei 512 octeți ai unui MBR, fără ELF, fără linker.
+2. **QEMU** — emulator x86. Pornește un „PC” în câteva milisecunde, cu discheta noastră în unitatea *A:*. Alternative bune, dar mai complicat de configurat: Bochs (debugger bun; oferă o foarte precisă idee asupra instrucțiunilor executate linie cu linie de procesor) și VirtualBox (mai greoi pentru un binar de 512 octeți întrucât este folosit mai degrabă pentru mașini virtuale cu sisteme de operare mature).
+3. **Un editor** — orice în care poți scrie Assembly (VS Code, Neovim, Zed, absolut orice — chiar și NotePad). Un plugin de syntax highlighting pentru NASM ajută.
+4. **Make** (opțional, dar util) — ca să nu tastezi de fiecare dată linia de NASM + QEMU.
+
+Nu-ți trebuie GCC, GRUB sau <code>genisoimage</code> pentru articolele din acest jurnal. Ele apar în *littleosbook* pentru că acolo nucleul e un executabil ELF încărcat de GRUB. Aici BIOS-ul încarcă direct sectorul 0.
+
+### Instalare pe Ubuntu / Debian
+
+~~~bash
+sudo apt-get update
+sudo apt-get install build-essential nasm qemu-system-x86 make
+~~~
+
+<code>build-essential</code> aduce Make și uneltele de compilare. <code>qemu-system-x86</code> e pachetul cu <code>qemu-system-x86_64</code>.
+
+Verificare rapidă:
+
+~~~bash
+nasm -v
+qemu-system-x86_64 --version
+~~~
+
+### Instalare pe macOS
+
+~~~bash
+brew install nasm qemu make
+~~~
+
+Comanda QEMU e tot <code>qemu-system-x86_64</code>. Dacă Homebrew nu e instalat: <code>https://brew.sh</code>.
+
+### De ce un emulator, nu hardware real
+
+Pe un PC fizic, ciclul e: scrii, asamblezi, copiezi pe USB, repornești, te uiți la un ecran negru, nu știi dacă a picat BIOS-ul sau bucla ta infinită. În QEMU:
+
+- pornești din terminal, în câteva secunde
+- poți opri, reface binarul, reporni
+- un ecran gol **fără mesaj de eroare de boot** înseamnă că semnătura *0xAA55* a fost acceptată
+
+Dezavantajul, recunoscut și în carte: succesul în emulator nu garantează că același binar merge pe un laptop din 2009.
+
+### Structura folderului
+
+Un folder mic, lângă site-ul de atestat, e destul:
+
+~~~text
+bootloader/
+├── start.asm      # bucla infinită (articolul "Ce este un bootloader?")
+├── hello.asm      # Hello, World! prin BIOS
+├── boot.asm       # trece în protected mode
+└── Makefile
+~~~
+
+Makefile-ul poate arăta așa:
+
+~~~make
+.PHONY: start hello boot clean
+
+start: start.bin
+	qemu-system-x86_64 -fda start.bin
+
+hello: hello.bin
+	qemu-system-x86_64 -fda hello.bin
+
+boot: boot.bin
+	qemu-system-x86_64 -fda boot.bin
+
+%.bin: %.asm
+	nasm -f bin $< -o $@
+
+clean:
+	rm -f *.bin
+~~~
+
+<code>-fda</code> spune QEMU-ului „tratează acest fișier ca pe o dischetă”. BIOS-ul emulat citește sectorul 0, caută *0x55AA*, încarcă la *0x7C00* și sare acolo — exact lanțul descris în articolul următor.
+
+### Primul test, înainte de orice teorie
+
+Creează <code>start.asm</code>:
+
+~~~asm
+[org 0x7c00]
+[bits 16]
+
+start:
+    jmp start
+
+times 510-($-$$) db 0
+dw 0xaa55
+~~~
+
+Apoi:
+
+~~~bash
+nasm -f bin start.asm -o start.bin
+qemu-system-x86_64 -fda start.bin
+~~~
+
+Dacă QEMU deschide o fereastră neagră, fără „Boot failed”, mediul e gata. Nu s-a afișat nimic pentru că programul nu scrie pe ecran: sare la el însuși. Asta e suficient ca să știi că NASM, semnătura de boot și QEMU funcționează împreună.
+
+### Ce nu instalăm (încă)
+
+- **GRUB / Multiboot / ELF** — utile când treci de la un sector de 512 octeți la un nucleu C.
+- **Bochs** — bun când vrei să inspectezi registrele după o buclă (în carte se caută <code>EAX=CAFEBABE</code> în log).
+- **Un cross-compiler i686-elf-gcc** — necesar abia când C-ul nu mai are libc (librăria default care conține majoritatea funcțiilor uzuale din acest limbaj) și trebuie să eviți header-ele de pe gazdă.
+
+### Ce urmează
+
+Cu NASM și QEMU în PATH, poți deschide articolul **Ce este un bootloader?** și scrie, linie cu linie, primul program care rulează înaintea oricărui sistem de operare.`,
+		},
 		{
 			"ce-este-un-bootloader",
 			"Ce este un bootloader?",
 			"Procesul de pornire al unui calculator, structura sectorului de boot și primul cod care rulează pe mașină.",
-			`Atunci când apeși butonul de pornire al unui calculator, procesorul nu știe încă nimic despre sistemul de operare instalat pe disc. Primul lucru care rulează este firmware-ul plăcii de bază, numit BIOS (Basic Input Output System). Rolul BIOS-ului este să facă o verificare minimală a componentelor hardware și apoi să caute un dispozitiv de pe care poate porni sistemul: un hard disk, un SSD, un stick USB sau o Dischetă Floppy.
+			`Atunci când apeși butonul de pornire al unui calculator, procesorul nu știe încă nimic despre sistemul de operare instalat pe disc. Primul lucru care rulează este firmware-ul plăcii de bază, numit BIOS (Basic Input Output System). Rolul BIOS-ului este să facă o verificare minimală a componentelor hardware și apoi să caute un dispozitiv de pe care poate porni sistemul: un hard disk, un SSD, un stick USB sau o dischetă Floppy.
 
 Pentru un disc cu partiționare clasică MBR (Master Boot Record), BIOS-ul citește primul sector al discului, exact 512 octeți, îl încarcă în memorie la adresa fixă *0x7C00* și sare la această adresă, predând controlul codului aflat acolo. Acești 512 octeți formează **bootloaderul**. Dacă ultimii doi octeți din acest sector nu sunt *0x55* și *0xAA* (semnătura de boot), BIOS-ul consideră discul neinițializat și nu încearcă să pornească de pe el.
 
@@ -148,7 +279,7 @@ Pe ecran va apărea **"Hello, World!"** în colțul din stânga sus. Acesta este
 			"Limitările real mode-ului, structura GDT și pașii prin care procesorul trece în protected mode.",
 			`Bootloaderul din pagina anterioară funcționează, dar **real mode** are limitări serioase:
 
-- adresează cel mult 1 MB de memorie (adesea 640KB, restul necesitând "artificii informatice")
+- adresează cel mult 1 MB de memorie (adesea 640KB, restul de 360KB necesitând niște "artificii" complicate)
 - nu oferă nicio protecție între segmentele de memorie (orice program care se blochează, va îngheța întregul sistem)
 - nu poate folosi toate instrucțiunile pe 32 de biți ale procesorului
 
