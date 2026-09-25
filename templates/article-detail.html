@@ -1,9 +1,12 @@
-{{define "article-detail"}} {{template "header" .}}
+{{define "article-detail"}}
+{{template "header" .}}
 
 <article class="article">
     <h1>{{.Data.Article.Title}}</h1>
     <span class="meta">{{.Data.Article.PublishedAt.Format "02.01.2006"}}</span>
-    <div class="article-content">{{.Data.Article.Content}}</div>
+    <div class="article-content">
+        {{.Data.Article.Content | markdown}}
+    </div>
 </article>
 
 <section class="comments">
@@ -16,28 +19,21 @@
         <p>{{.Content}}</p>
     </div>
     {{else}}
-    <p class="meta">Niciun comentariu inca.</p>
-    {{end}} {{if .User}}
-    <form
-        action="/articles/{{.Data.Article.Slug}}/comments"
-        method="post"
-        class="comment-form"
-    >
-        <textarea
-            name="content"
-            placeholder="Scrie un comentariu..."
-            required
-        ></textarea>
+    <p class="meta">Niciun comentariu încă.</p>
+    {{end}}
+
+    {{if .User}}
+    <form action="/articles/{{.Data.Article.Slug}}/comments" method="post" class="comment-form">
+        <textarea name="content" placeholder="Scrie un comentariu..." required></textarea>
         <button type="submit" class="btn">Trimite comentariu</button>
     </form>
     {{else}}
     <p class="meta">
-        <a href="/login?next=/articles/{{.Data.Article.Slug}}"
-            >Autentifica-te</a
-        >
-        pentru a lasa un comentariu.
+        <a href="/login?next=/articles/{{.Data.Article.Slug}}">Autentifică-te</a>
+        pentru a lăsa un comentariu.
     </p>
     {{end}}
 </section>
 
-{{template "footer" .}} {{end}}
+{{template "footer" .}}
+{{end}}

@@ -11,7 +11,7 @@ import (
 //go:embed schema.sql
 var schemaSQL string
 
-// initSchema creează baza de date dacă nu există
+// initSchema creează tabelele dacă nu există folosind fișierul schema.sql
 func initSchema(db *sql.DB) {
 	if _, err := db.Exec("PRAGMA foreign_keys = ON;"); err != nil {
 		log.Fatal(err)
@@ -21,14 +21,14 @@ func initSchema(db *sql.DB) {
 	}
 }
 
-// seedData creează contul de admin și quiz-ul doar dacă nu există, gen când este creată baza de date
+// seedData creează contul de admin și articolele dacă baza de date a fost de abia creată.
 func seedData(db *sql.DB) {
 	var count int
 	if err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count); err != nil {
 		log.Fatal(err)
 	}
 	if count > 0 {
-		return // deja populat, nu suprascrie
+		return // deja populat, nu suprascriem
 	}
 
 	// Cont admin implicit
@@ -41,43 +41,339 @@ func seedData(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Cont admin default creat -> utilizator: admin | parolă: admin123")
+	log.Println("Cont admin implicit creat -> utilizator: admin | parola: admin123")
 
-	// Articole
+	// Articole — folosim ~~~ pentru fence-uri (echivalent cu ``` în CommonMark)
+	// ca să evităm backtick-uri în string-urile raw Go.
 	articles := []struct{ slug, title, summary, content string }{
 		{
 			"ce-este-un-bootloader",
 			"Ce este un bootloader?",
-			"O introducere în procesul de pornire al unui calculator: BIOS, MBR și primii pași spre un sistem de operare.",
-			"Când pornești calculatorul, procesorul execută codul aflat la o adresă fixă în memorie, controlat inițial de firmware-ul BIOS (Basic Input Output System). " +
-				"BIOS-ul caută un dispozitiv de boot valid (Hard Drive, CD, FDD, Stick USB, etc) și încarcă primii 512 de octeți ai acestuia (Master Boot Record) la adresa 0x7C00, " +
-				"apoi predă controlul acolo dacă ultimii doi octeți conțin semnătura 0xAA55.\n\n" +
-				"Bootloaderul este exact acest cod de 512 octeți: prima bucată de software scrisă de programator care rulează pe mașină. " +
-				"Rolul lui este să pregătească terenul pentru sistemul de operare: afișează mesaje, inițializează hardware minim și, " +
-				"cel mai important, trece procesorul din real mode (16-bit, moștenit din anii '80 de pe Intel 8086) în protected mode (32-bit), " +
-				"unde poate accesa toată memoria disponibilă (de precizat că limita maximă pentru 32 de biți este sub 4GB, undeva la 3.5GB) și poate rula cod modern.",
+			"Procesul de pornire al unui calculator, structura sectorului de boot și primul cod care rulează pe mașină.",
+			`Atunci când apeși butonul de pornire al unui calculator, procesorul nu știe încă nimic despre sistemul de operare instalat pe disc. Primul lucru care rulează este firmware-ul plăcii de bază, numit BIOS (Basic Input Output System). Rolul BIOS-ului este să facă o verificare minimală a componentelor hardware și apoi să caute un dispozitiv de pe care poate porni sistemul: un hard disk, un SSD sau un stick USB.
+
+Pentru un disc cu partiționare clasică MBR (Master Boot Record), BIOS-ul citește primul sector al discului, exact 512 octeți, îl încarcă în memorie la adresa fixă 0x7C00 și sare la această adresă, predând controlul codului aflat acolo. Acești 512 octeți formează **bootloaderul**. Dacă ultimii doi octeți din acest sector nu sunt 0x55 și 0xAA (semnătura de boot), BIOS-ul consideră discul neinițializat și nu încearcă să pornească de pe el.
+
+Bootloaderul este primul program care rulează pe mașină fără ajutorul niciunui sistem de operare. El trebuie să facă tot ce e nevoie folosind doar instrucțiuni de procesor și serviciile puse la dispoziție de BIOS prin întreruperi software.
+
+La pornire, procesorul se află în **real mode**, un mod de funcționare moștenit de la procesoarele Intel 8086, în care adresele de memorie se calculează dintr-o pereche segment:offset și în care sunt disponibili doar 20 de biți de adresare, adică 1 MB de memorie. Codul din această pagină și din următoarele pornește de la acest mod.
+
+Cel mai simplu bootloader posibil nu face nimic altceva decât să se oprească într-o buclă infinită, dar trebuie să respecte două reguli: să aibă exact 512 octeți și să se termine cu semnătura 0xAA55.
+
+### Exemplu: start.asm
+
+~~~asm
+[org 0x7c00]
+[bits 16]
+
+start:
+    jmp start
+
+times 510-($-$$) db 0
+dw 0xaa55
+~~~
+
+Linia <code>[org 0x7c00]</code> îi spune assemblerului că acest cod va fi încărcat la adresa 0x7C00, astfel încât toate adresele calculate în cod să fie corecte. Linia <code>[bits 16]</code> îi spune să genereze cod pentru real mode, pe 16 biți.
+
+Eticheta <code>start</code> conține o singură instrucțiune, <code>jmp start</code>, care sare la ea însăși la nesfârșit. Linia <code>times 510-($-$$) db 0</code> umple tot spațiul rămas până la octetul 510 cu zerouri, iar <code>dw 0xaa55</code> scrie ultimii doi octeți, adică semnătura de boot.
+
+### Cum se asamblează și rulează
+
+~~~bash
+nasm -f bin start.asm -o start.bin
+qemu-system-x86_64 -fda start.bin
+~~~
+
+Dacă totul e corect, va apărea un ecran gol, fără mesaje de eroare. Bucla infinită nu afișează nimic, dar faptul că nu apare nicio eroare de boot înseamnă că BIOS-ul a găsit și a încărcat bootloaderul cu succes.`,
 		},
 		{
-			"real-mode-vs-protected-mode",
-			"Real mode vs Protected mode",
-			"Diferențele esențiale între cele două moduri de funcționare ale procesorului x86 și de ce bootloaderul trebuie să treacă prin ambele.",
-			"La pornire, un procesor x86 începe întotdeauna în real mode, din motive de compatibilitate cu sistemele vechi (anii '80). " +
-				"În real mode adresele de memorie sunt calculate din perechi \"segment:offset\" și sunt limitate la 1 MB de memorie adresabilă (teoretic doar 1MB, dar adesea doar 640KB, restul necesitând niște 'artificii').\n\n" +
-				"Protected mode elimină această limitare: folosește adrese pe 32 de biți, oferă protecție a memoriei între procese (dacă un program se blochează, nu blochează tot sistemul) și acces la " +
-				"toată memoria fizică (teoretic 4GB, practic doar 3.5GB). Trecerea între cele două moduri se face prin setarea bitului 'PE' din registrul 'CR0', dar înainte de asta " +
-				"trebuie construit un GDT (Global Descriptor Table) care descrie segmentele de cod și date pe care le va folosi procesorul.",
+			"afisarea-de-text-cu-bios",
+			"Afișarea de text cu BIOS",
+			"Cum se folosește întreruperea BIOS int 0x10 pentru a scrie pe ecran, cu un bootloader complet care afișează Hello, World!",
+			`Real mode oferă acces la serviciile BIOS prin întreruperi software: instrucțiunea <code>int</code>, urmată de un număr, apelează o rutină pusă la dispoziție de BIOS. Una dintre cele mai utile este **int 0x10**, care controlează afișarea video.
+
+Dacă punem în registrul <code>AH</code> valoarea <code>0x0E</code> înainte de a apela <code>int 0x10</code>, BIOS-ul execută funcția *teletype output*: afișează pe ecran caracterul aflat în <code>AL</code> și mută automat cursorul, la fel cum s-ar întâmpla într-un terminal obișnuit.
+
+Pentru a afișa un șir de caractere întreg, trebuie parcursă litera cu literă și apelată <code>int 0x10</code> pentru fiecare, oprindu-ne când întâlnim un octet <code>0</code> (terminatorul șirului, aceeași convenție folosită în C).
+
+### Exemplu: hello.asm
+
+~~~asm
+[org 0x7c00]
+[bits 16]
+
+start:
+    xor ax, ax
+    mov ds, ax
+    mov si, msg
+
+print_char:
+    lodsb
+    cmp al, 0
+    je halt
+    mov ah, 0x0e
+    int 0x10
+    jmp print_char
+
+halt:
+    jmp halt
+
+msg db 'Hello, World!', 0
+
+times 510-($-$$) db 0
+dw 0xaa55
+~~~
+
+### Explicație pas cu pas
+
+- <code>xor ax, ax</code> + <code>mov ds, ax</code> pun 0 în registrul <code>DS</code>. Unele BIOS-uri și emulatoare nu garantează valoarea inițială a lui <code>DS</code>, așa că o forțăm explicit la 0 (același segment folosit de adresa 0x7C00).
+- <code>mov si, msg</code> pune în <code>SI</code> adresa șirului de afișat.
+- <code>lodsb</code> citește octetul de la adresa <code>DS:SI</code> în <code>AL</code> și incrementează automat <code>SI</code>.
+- <code>cmp al, 0</code> + <code>je halt</code> verifică dacă am ajuns la terminator.
+- <code>mov ah, 0x0e</code> + <code>int 0x10</code> afișează caracterul curent.
+- Eticheta <code>halt</code> conține o buclă infinită. Fără ea, procesorul ar continua să execute octeții următori din memorie (care nu sunt cod valid).
+
+### Rulare
+
+~~~bash
+nasm -f bin hello.asm -o hello.bin
+qemu-system-x86_64 -fda hello.bin
+~~~
+
+Pe ecran va apărea **"Hello, World!"** în colțul din stânga sus. Acesta este deja un bootloader Hello World complet funcțional, scris în întregime în real mode.`,
 		},
 		{
-			"jurnal-progres",
-			"Jurnal de progres",
-			"Etapele parcurse până acum în dezvoltarea bootloaderului și următorii pași planificați.",
-			"Etapa 1: bootloader minimal care afișează un mesaj pe ecran folosind întreruperea BIOS int 0x10, testat în QEMU.\n\n" +
-				"Etapa 2: construirea unui GDT valid și trecerea în protected mode.\n\n" +
-				"Etapa 3 (planificată): încărcarea unui al doilea stagiu de pe disc, deoarece 512 octeți sunt insuficienți pentru mai mult " +
-				"decât pașii de bază.\n\n" +
-				"Pasul următor: integrarea limbajului de programare C pentru a începe să-ți scrii propriile funcții și librării.",
+			"real-mode-si-protected-mode",
+			"Real mode și protected mode",
+			"Limitările real mode-ului, structura GDT și pașii prin care procesorul trece în protected mode.",
+			`Bootloaderul din pagina anterioară funcționează, dar **real mode** are limitări serioase:
+
+- adresează cel mult 1 MB de memorie
+- nu oferă nicio protecție între segmentele de memorie
+- nu poate folosi toate instrucțiunile pe 32 de biți ale procesorului
+
+Orice sistem de operare modern are nevoie de **protected mode**, introdus odată cu procesorul Intel 80286 și extins la 32 de biți pe 80386.
+
+În protected mode, adresele de memorie nu mai sunt calculate din perechi segment:offset. Procesorul folosește o structură numită **GDT** (*Global Descriptor Table*) pentru a descrie segmentele de memorie disponibile: unde încep, cât sunt de mari și ce tip de acces permit (cod sau date).
+
+Trecerea la protected mode presupune trei lucruri:
+
+1. construirea unui GDT valid
+2. încărcarea lui în procesor cu instrucțiunea <code>lgdt</code>
+3. setarea bitului PE (*Protection Enable*) din registrul de control <code>CR0</code>
+
+### Definiția GDT-ului
+
+~~~asm
+gdt_start:
+    dq 0x0                 ; descriptor nul (obligatoriu)
+
+gdt_code:
+    dw 0xffff              ; limită
+    dw 0x0                 ; bază (biți 0-15)
+    db 0x0                 ; bază (biți 16-23)
+    db 10011010b           ; access byte
+    db 11001111b           ; flags + limită (biți 16-19)
+    db 0x0                 ; bază (biți 24-31)
+
+gdt_data:
+    dw 0xffff
+    dw 0x0
+    db 0x0
+    db 10010010b
+    db 11001111b
+    db 0x0
+
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
+
+CODE_SEG equ gdt_code - gdt_start
+DATA_SEG equ gdt_data - gdt_start
+~~~
+
+- Primul descriptor (<code>dq 0x0</code>) este obligatoriu nul.
+- <code>gdt_code</code> descrie un segment de cod: limită 0xFFFF (extinsă mai târziu la 4 GB), bază 0, access <code>10011010b</code> (prezent, ring 0, cod, executabil + citibil), flags <code>11001111b</code> (granularitate 4 KB + mod 32 biți).
+- <code>gdt_data</code> este aproape identic, dar cu access <code>10010010b</code> (segment de date, scriere permisă).
+- <code>CODE_SEG</code> și <code>DATA_SEG</code> sunt constante calculate la asamblare, folosite mai târziu ca selectori.
+
+### Trecerea efectivă în protected mode
+
+~~~asm
+switch_to_pm:
+    cli                     ; dezactivăm întreruperile
+    lgdt [gdt_descriptor]   ; încărcăm GDT-ul
+    mov eax, cr0
+    or eax, 1               ; setăm bitul PE
+    mov cr0, eax
+    jmp CODE_SEG:init_pm    ; far jump obligatoriu
+
+[bits 32]
+init_pm:
+    mov ax, DATA_SEG
+    mov ds, ax
+    mov ss, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov esp, 0x90000        ; stivă sub 1 MB
+~~~
+
+- <code>cli</code> dezactivează întreruperile hardware (cele din real mode nu mai sunt valide).
+- Far jump-ul (<code>jmp CODE_SEG:init_pm</code>) golește coada de preîncărcare a procesorului.
+- De la <code>init_pm</code> în jos, codul rulează pe 32 de biți.
+
+În acest punct procesorul rulează deja în protected mode, dar ecranul e tot gol. Pasul următor arată cum se scrie pe ecran în noul mod.`,
+		},
+		{
+			"hello-world-in-protected-mode",
+			"Hello, World! în protected mode",
+			"Scrierea directă în memoria video și bootloaderul final, complet, care afișează Hello, World! după trecerea în protected mode.",
+			`În real mode, scrierea pe ecran s-a făcut prin BIOS (<code>int 0x10</code>). În protected mode, întreruperile BIOS nu mai sunt disponibile (le-am dezactivat cu <code>cli</code>), iar oricum BIOS-ul rulează cod pe 16 biți, incompatibil cu modul curent.
+
+Soluția: scriem **direct în memoria video**.
+
+Placa video mapează în memoria calculatorului, începând de la adresa <code>0xB8000</code>, o zonă specială numită *text mode buffer*. Fiecare caracter afișat pe ecran ocupă **2 octeți** consecutivi:
+
+1. codul ASCII al caracterului
+2. un octet de atribute (culoare text + fundal)
+
+Pentru text alb pe fundal negru, valoarea standard este <code>0x0F</code>.
+
+### Funcția de afișare
+
+~~~asm
+VIDEO_MEMORY   equ 0xb8000
+WHITE_ON_BLACK equ 0x0f
+
+print_string_pm:
+    pusha
+    mov edx, VIDEO_MEMORY
+
+print_string_pm_loop:
+    mov al, [ebx]           ; caracterul curent
+    mov ah, WHITE_ON_BLACK  ; atribut culoare
+    cmp al, 0
+    je print_string_pm_done
+    mov [edx], ax           ; scriem caracter + atribut
+    add ebx, 1
+    add edx, 2
+    jmp print_string_pm_loop
+
+print_string_pm_done:
+    popa
+    ret
+~~~
+
+- <code>pusha</code> / <code>popa</code> salvează și restaurează registrele.
+- <code>EDX</code> ține adresa curentă din memoria video.
+- <code>EBX</code> conține adresa șirului de afișat (parametrul funcției).
+- Scriem câte 2 octeți deodată (<code>mov [edx], ax</code>).
+
+### Bootloaderul final complet
+
+Punând cap la cap tot ce am învățat, rezultă un singur bootloader funcțional care pornește în real mode, trece în protected mode și afișează "Hello, World!".
+
+~~~asm
+[org 0x7c00]
+[bits 16]
+
+start:
+    xor ax, ax
+    mov ds, ax
+    jmp switch_to_pm
+
+; ---------- GDT ----------
+gdt_start:
+    dq 0x0
+
+gdt_code:
+    dw 0xffff
+    dw 0x0
+    db 0x0
+    db 10011010b
+    db 11001111b
+    db 0x0
+
+gdt_data:
+    dw 0xffff
+    dw 0x0
+    db 0x0
+    db 10010010b
+    db 11001111b
+    db 0x0
+
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
+
+CODE_SEG equ gdt_code - gdt_start
+DATA_SEG equ gdt_data - gdt_start
+
+; ---------- Switch to protected mode ----------
+switch_to_pm:
+    cli
+    lgdt [gdt_descriptor]
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+    jmp CODE_SEG:init_pm
+
+[bits 32]
+init_pm:
+    mov ax, DATA_SEG
+    mov ds, ax
+    mov ss, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov esp, 0x90000
+
+    mov ebx, msg
+    call print_string_pm
+    jmp $
+
+; ---------- Print ----------
+VIDEO_MEMORY   equ 0xb8000
+WHITE_ON_BLACK equ 0x0f
+
+print_string_pm:
+    pusha
+    mov edx, VIDEO_MEMORY
+print_string_pm_loop:
+    mov al, [ebx]
+    mov ah, WHITE_ON_BLACK
+    cmp al, 0
+    je print_string_pm_done
+    mov [edx], ax
+    add ebx, 1
+    add edx, 2
+    jmp print_string_pm_loop
+print_string_pm_done:
+    popa
+    ret
+
+msg db 'Hello, World!', 0
+
+times 510-($-$$) db 0
+dw 0xaa55
+~~~
+
+### Rulare
+
+~~~bash
+nasm -f bin boot.asm -o boot.bin
+qemu-system-x86_64 -fda boot.bin
+~~~
+
+La rulare, ecranul rămâne gol o fracțiune de secundă (cât durează trecerea în protected mode), apoi apare textul **"Hello, World!"** scris direct în memoria video, fără niciun ajutor din partea BIOS-ului.`,
 		},
 	}
+
 	for _, a := range articles {
 		_, err := db.Exec(
 			`INSERT INTO articles (slug, title, summary, content) VALUES (?, ?, ?, ?)`,
@@ -93,10 +389,10 @@ func seedData(db *sql.DB) {
 		q, a, b, c, d, correct, explanation string
 	}{
 		{
-			"Câți octeți (bytes) are Master Boot Record-ul (MBR)?",
-			"256 octeți", "512 octeți", "1024 octeți", "4096 octeți",
+			"Câți bytes are Master Boot Record-ul (MBR)?",
+			"256 bytes", "512 bytes", "1024 bytes", "4096 bytes",
 			"B",
-			"MBR-ul ocupă exact un sector de disc: 512 octeți, dintre care ultimii 2 sunt semnătura 0x55AA.",
+			"MBR-ul ocupă exact un sector de disc: 512 bytes, dintre care ultimii 2 sunt semnătura 0x55AA.",
 		},
 		{
 			"Ce întrerupere BIOS este folosită de obicei pentru afișarea de text în real mode?",
@@ -123,6 +419,7 @@ func seedData(db *sql.DB) {
 			"În real mode, adresarea segment:offset limitează memoria accesibilă la aproximativ 1 MB.",
 		},
 	}
+
 	for _, qz := range questions {
 		_, err := db.Exec(
 			`INSERT INTO quiz_questions (question, option_a, option_b, option_c, option_d, correct_option, explanation)

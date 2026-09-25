@@ -26,9 +26,11 @@ func main() {
 	initSchema(db)
 	seedData(db)
 
-	tpl, err = template.ParseGlob("templates/*.html")
+	tpl, err = template.New("").Funcs(template.FuncMap{
+		"markdown": renderMarkdown,
+	}).ParseGlob("templates/*.html")
 	if err != nil {
-		log.Fatalf("nu am putut incarca template-urile: %v", err)
+		log.Fatalf("nu am putut încărca template-urile: %v", err)
 	}
 
 	mux := http.NewServeMux()
@@ -67,7 +69,7 @@ func main() {
 	mux.HandleFunc("POST /admin/comments/{id}/delete", requireAdmin(adminCommentDeleteHandler))
 
 	addr := ":8080"
-	log.Println("Server pornit -> http://localhost" + addr)
+	log.Println("Server pornit → http://localhost" + addr)
 	log.Fatal(http.ListenAndServe(addr, logRequests(mux)))
 }
 

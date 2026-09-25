@@ -64,7 +64,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	if len(articles) > 3 {
 		articles = articles[:3]
 	}
-	render(w, r, "home", PageData{Title: "Acasa", Data: articles})
+	render(w, r, "home", PageData{Title: "Acasă", Data: articles})
 }
 
 func articlesListHandler(w http.ResponseWriter, r *http.Request) {
