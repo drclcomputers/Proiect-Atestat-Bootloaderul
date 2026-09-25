@@ -1,0 +1,31 @@
+{{define "home"}}
+{{template "header" .}}
+
+<section class="hero">
+    <h1>Bootloader: primul pas inspre crearea unui sistem de operare</h1>
+    <p>
+        Proiect de atestat care documenteaza dezvoltarea unui bootloader x86 scris in Assembly —
+        de la pornirea calculatorului (BIOS &amp; MBR) pana la trecerea in protected mode.
+    </p>
+    <div class="hero-actions">
+        <a class="btn" href="/articles">Vezi jurnalul de dezvoltare</a>
+        <a class="btn btn-outline" href="/quiz">Testeaza-ti cunostintele</a>
+    </div>
+</section>
+
+<section>
+    <h2>Ultimele articole</h2>
+    <div class="card-grid">
+        {{range .Data}}
+        <a class="card" href="/articles/{{.Slug}}">
+            <h3>{{.Title}}</h3>
+            <p>{{.Summary}}</p>
+        </a>
+        {{else}}
+        <p>Inca nu exista articole.</p>
+        {{end}}
+    </div>
+</section>
+
+{{template "footer" .}}
+{{end}}

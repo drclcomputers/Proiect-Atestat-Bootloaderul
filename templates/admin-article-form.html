@@ -1,0 +1,20 @@
+{{define "admin-article-form"}}
+{{template "header" .}}
+
+<h1>{{if .Data.ID}}Editeaza articol{{else}}Articol nou{{end}}</h1>
+
+<form action="{{if .Data.ID}}/admin/articles/{{.Data.ID}}/edit{{else}}/admin/articles/new{{end}}" method="post" class="form-box">
+    <label>Titlu
+        <input type="text" name="title" value="{{.Data.Title}}" required>
+    </label>
+    <label>Rezumat (afisat in liste)
+        <textarea name="summary" rows="2" required>{{.Data.Summary}}</textarea>
+    </label>
+    <label>Continut
+        <textarea name="content" rows="12" required>{{.Data.Content}}</textarea>
+    </label>
+    <button type="submit" class="btn">Salveaza</button>
+</form>
+
+{{template "footer" .}}
+{{end}}

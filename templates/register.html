@@ -1,0 +1,19 @@
+{{define "register"}}
+{{template "header" .}}
+
+<div class="form-box">
+    <h1>Cont nou</h1>
+    <form action="/register" method="post">
+        <label>Nume utilizator (min. 3 caractere)
+            <input type="text" name="username" required autofocus minlength="3">
+        </label>
+        <label>Parola (min. 6 caractere)
+            <input type="password" name="password" required minlength="6">
+        </label>
+        <button type="submit" class="btn">Creeaza cont</button>
+    </form>
+    <p class="meta">Ai deja cont? <a href="/login">Autentifica-te</a></p>
+</div>
+
+{{template "footer" .}}
+{{end}}

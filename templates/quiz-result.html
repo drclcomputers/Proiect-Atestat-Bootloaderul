@@ -1,0 +1,21 @@
+{{define "quiz-result"}}
+{{template "header" .}}
+
+<h1>Rezultat: {{.Data.Score}} / {{.Data.Total}}</h1>
+{{if not .User}}<p class="meta">Autentifica-te data viitoare ca sa-ti fie salvat scorul in istoric.</p>{{end}}
+
+<div class="quiz-review">
+    {{range .Data.Questions}}
+    {{$chosen := index $.Data.Answers .ID}}
+    <div class="quiz-question {{if eq $chosen .CorrectOption}}correct{{else}}incorrect{{end}}">
+        <p><strong>{{.Question}}</strong></p>
+        <p>Raspunsul tau: {{$chosen}} — Raspuns corect: {{.CorrectOption}}</p>
+        {{if .Explanation}}<p class="meta">{{.Explanation}}</p>{{end}}
+    </div>
+    {{end}}
+</div>
+
+<a class="btn" href="/quiz">Reincearca quiz-ul</a>
+
+{{template "footer" .}}
+{{end}}

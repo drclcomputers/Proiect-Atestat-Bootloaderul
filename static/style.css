@@ -1,0 +1,124 @@
+:root {
+    --bg: #0d1117;
+    --bg-alt: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --accent: #3fb950;
+    --accent-dim: #2ea043;
+    --danger: #f85149;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    line-height: 1.6;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--bg-alt);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.brand { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
+
+.site-header nav { display: flex; gap: 1.1rem; align-items: center; flex-wrap: wrap; }
+.who { color: var(--text-dim); }
+
+.container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+.hero { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+.hero h1 { color: var(--accent); font-size: 1.6rem; }
+.hero-actions { display: flex; gap: 1rem; margin-top: 1rem; }
+
+.btn {
+    display: inline-block;
+    background: var(--accent-dim);
+    color: #0d1117;
+    padding: 0.55rem 1.1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+.btn:hover { background: var(--accent); text-decoration: none; }
+.btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+
+.link-btn { background: none; border: none; color: var(--accent); cursor: pointer; font: inherit; padding: 0; }
+.link-btn.danger { color: var(--danger); }
+.inline { display: inline; }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.card {
+    display: block;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    color: var(--text);
+}
+.card h3 { margin: 0 0 0.4rem; color: var(--accent); }
+.card:hover { border-color: var(--accent); text-decoration: none; }
+
+.meta { color: var(--text-dim); font-size: 0.85rem; }
+
+.article-content { white-space: pre-wrap; margin-top: 1rem; }
+
+.comments { margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+.comment { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; }
+
+.comment-form textarea, .form-box input, .form-box textarea, .form-box select {
+    width: 100%;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-family: inherit;
+    margin-top: 0.3rem;
+}
+
+.form-box { display: flex; flex-direction: column; gap: 1rem; max-width: 500px; }
+.form-box label { display: flex; flex-direction: column; font-size: 0.9rem; color: var(--text-dim); }
+
+.quiz-question {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.quiz-question legend { padding: 0 0.5rem; color: var(--accent); }
+.quiz-question label { display: block; margin: 0.3rem 0; cursor: pointer; }
+
+.quiz-review .quiz-question.correct { border-color: var(--accent); }
+.quiz-review .quiz-question.incorrect { border-color: var(--danger); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+.stat { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; text-align: center; }
+.stat .num { display: block; font-size: 1.8rem; color: var(--accent); font-weight: bold; }
+
+.admin-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+
+.admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.admin-table th, .admin-table td { border-bottom: 1px solid var(--border); padding: 0.6rem; text-align: left; }
+.admin-table .actions { display: flex; gap: 0.75rem; }
+
+.flash { padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; }
+.flash-error { background: rgba(248, 81, 73, 0.15); border: 1px solid var(--danger); color: var(--danger); }
+.flash-success { background: rgba(63, 185, 80, 0.15); border: 1px solid var(--accent); color: var(--accent); }
+
+.site-footer { text-align: center; color: var(--text-dim); padding: 1.5rem; border-top: 1px solid var(--border); font-size: 0.85rem; }
