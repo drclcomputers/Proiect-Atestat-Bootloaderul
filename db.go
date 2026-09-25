@@ -50,15 +50,15 @@ func seedData(db *sql.DB) {
 			"ce-este-un-bootloader",
 			"Ce este un bootloader?",
 			"Procesul de pornire al unui calculator, structura sectorului de boot și primul cod care rulează pe mașină.",
-			`Atunci când apeși butonul de pornire al unui calculator, procesorul nu știe încă nimic despre sistemul de operare instalat pe disc. Primul lucru care rulează este firmware-ul plăcii de bază, numit BIOS (Basic Input Output System). Rolul BIOS-ului este să facă o verificare minimală a componentelor hardware și apoi să caute un dispozitiv de pe care poate porni sistemul: un hard disk, un SSD sau un stick USB.
+			`Atunci când apeși butonul de pornire al unui calculator, procesorul nu știe încă nimic despre sistemul de operare instalat pe disc. Primul lucru care rulează este firmware-ul plăcii de bază, numit BIOS (Basic Input Output System). Rolul BIOS-ului este să facă o verificare minimală a componentelor hardware și apoi să caute un dispozitiv de pe care poate porni sistemul: un hard disk, un SSD, un stick USB sau o Dischetă Floppy.
 
-Pentru un disc cu partiționare clasică MBR (Master Boot Record), BIOS-ul citește primul sector al discului, exact 512 octeți, îl încarcă în memorie la adresa fixă 0x7C00 și sare la această adresă, predând controlul codului aflat acolo. Acești 512 octeți formează **bootloaderul**. Dacă ultimii doi octeți din acest sector nu sunt 0x55 și 0xAA (semnătura de boot), BIOS-ul consideră discul neinițializat și nu încearcă să pornească de pe el.
+Pentru un disc cu partiționare clasică MBR (Master Boot Record), BIOS-ul citește primul sector al discului, exact 512 octeți, îl încarcă în memorie la adresa fixă *0x7C00* și sare la această adresă, predând controlul codului aflat acolo. Acești 512 octeți formează **bootloaderul**. Dacă ultimii doi octeți din acest sector nu sunt *0x55* și *0xAA* (semnătura de boot), BIOS-ul consideră discul neinițializat și nu încearcă să pornească de pe el.
 
 Bootloaderul este primul program care rulează pe mașină fără ajutorul niciunui sistem de operare. El trebuie să facă tot ce e nevoie folosind doar instrucțiuni de procesor și serviciile puse la dispoziție de BIOS prin întreruperi software.
 
-La pornire, procesorul se află în **real mode**, un mod de funcționare moștenit de la procesoarele Intel 8086, în care adresele de memorie se calculează dintr-o pereche segment:offset și în care sunt disponibili doar 20 de biți de adresare, adică 1 MB de memorie. Codul din această pagină și din următoarele pornește de la acest mod.
+La pornire, procesorul se află în **real mode**, un mod de funcționare moștenit de la procesoarele Intel 8086, în care adresele de memorie se calculează dintr-o pereche *[segment:offset]* și în care sunt disponibili doar 20 de biți de adresare, adică 1 MB de memorie. Codul din această pagină și din următoarele pornește de la acest mod.
 
-Cel mai simplu bootloader posibil nu face nimic altceva decât să se oprească într-o buclă infinită, dar trebuie să respecte două reguli: să aibă exact 512 octeți și să se termine cu semnătura 0xAA55.
+Cel mai simplu bootloader posibil nu face nimic altceva decât să se oprească într-o buclă infinită, dar trebuie să respecte două reguli: să aibă exact 512 octeți și să se termine cu semnătura *0xAA55*.
 
 ### Exemplu: start.asm
 
@@ -73,7 +73,7 @@ times 510-($-$$) db 0
 dw 0xaa55
 ~~~
 
-Linia <code>[org 0x7c00]</code> îi spune assemblerului că acest cod va fi încărcat la adresa 0x7C00, astfel încât toate adresele calculate în cod să fie corecte. Linia <code>[bits 16]</code> îi spune să genereze cod pentru real mode, pe 16 biți.
+Linia <code>[org 0x7c00]</code> îi spune assemblerului că acest cod va fi încărcat la adresa *0x7C00*, astfel încât toate adresele calculate în cod să fie corecte. Linia <code>[bits 16]</code> îi spune să genereze cod pentru real mode, pe 16 biți.
 
 Eticheta <code>start</code> conține o singură instrucțiune, <code>jmp start</code>, care sare la ea însăși la nesfârșit. Linia <code>times 510-($-$$) db 0</code> umple tot spațiul rămas până la octetul 510 cu zerouri, iar <code>dw 0xaa55</code> scrie ultimii doi octeți, adică semnătura de boot.
 
@@ -94,7 +94,7 @@ Dacă totul e corect, va apărea un ecran gol, fără mesaje de eroare. Bucla in
 
 Dacă punem în registrul <code>AH</code> valoarea <code>0x0E</code> înainte de a apela <code>int 0x10</code>, BIOS-ul execută funcția *teletype output*: afișează pe ecran caracterul aflat în <code>AL</code> și mută automat cursorul, la fel cum s-ar întâmpla într-un terminal obișnuit.
 
-Pentru a afișa un șir de caractere întreg, trebuie parcursă litera cu literă și apelată <code>int 0x10</code> pentru fiecare, oprindu-ne când întâlnim un octet <code>0</code> (terminatorul șirului, aceeași convenție folosită în C).
+Pentru a afișa un șir de caractere întreg, trebuie parcursă litera cu literă și apelată <code>int 0x10</code> pentru fiecare, oprindu-ne când întâlnim un octet <code>0</code> (terminatorul șirului, aceeași convenție folosită în limbajul de programare C).
 
 ### Exemplu: hello.asm
 
@@ -126,7 +126,7 @@ dw 0xaa55
 
 ### Explicație pas cu pas
 
-- <code>xor ax, ax</code> + <code>mov ds, ax</code> pun 0 în registrul <code>DS</code>. Unele BIOS-uri și emulatoare nu garantează valoarea inițială a lui <code>DS</code>, așa că o forțăm explicit la 0 (același segment folosit de adresa 0x7C00).
+- <code>xor ax, ax</code> + <code>mov ds, ax</code> pun 0 în registrul <code>DS</code>. Unele BIOS-uri și emulatoare nu garantează valoarea inițială a lui <code>DS</code>, așa că o forțăm explicit la 0 (același segment folosit de adresa *0x7C00*).
 - <code>mov si, msg</code> pune în <code>SI</code> adresa șirului de afișat.
 - <code>lodsb</code> citește octetul de la adresa <code>DS:SI</code> în <code>AL</code> și incrementează automat <code>SI</code>.
 - <code>cmp al, 0</code> + <code>je halt</code> verifică dacă am ajuns la terminator.
@@ -148,13 +148,13 @@ Pe ecran va apărea **"Hello, World!"** în colțul din stânga sus. Acesta este
 			"Limitările real mode-ului, structura GDT și pașii prin care procesorul trece în protected mode.",
 			`Bootloaderul din pagina anterioară funcționează, dar **real mode** are limitări serioase:
 
-- adresează cel mult 1 MB de memorie
-- nu oferă nicio protecție între segmentele de memorie
+- adresează cel mult 1 MB de memorie (adesea 640KB, restul necesitând "artificii informatice")
+- nu oferă nicio protecție între segmentele de memorie (orice program care se blochează, va îngheța întregul sistem)
 - nu poate folosi toate instrucțiunile pe 32 de biți ale procesorului
 
 Orice sistem de operare modern are nevoie de **protected mode**, introdus odată cu procesorul Intel 80286 și extins la 32 de biți pe 80386.
 
-În protected mode, adresele de memorie nu mai sunt calculate din perechi segment:offset. Procesorul folosește o structură numită **GDT** (*Global Descriptor Table*) pentru a descrie segmentele de memorie disponibile: unde încep, cât sunt de mari și ce tip de acces permit (cod sau date).
+În protected mode, adresele de memorie nu mai sunt calculate din perechi *[segment:offset]*. Procesorul folosește o structură numită **GDT** (*Global Descriptor Table*) pentru a descrie segmentele de memorie disponibile: unde încep, cât sunt de mari și ce tip de acces permit (cod sau date).
 
 Trecerea la protected mode presupune trei lucruri:
 

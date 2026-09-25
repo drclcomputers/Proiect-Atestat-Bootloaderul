@@ -20,7 +20,7 @@ var md = goldmark.New(
 			highlighting.WithStyle("monokai"),
 			highlighting.WithFormatOptions(
 				chromahtml.WithLineNumbers(false),
-				chromahtml.WithClasses(false), // stiluri inline → nu e nevoie de CSS extra pentru highlight
+				chromahtml.WithClasses(false),
 			),
 		),
 	),
@@ -28,13 +28,12 @@ var md = goldmark.New(
 		parser.WithAutoHeadingID(),
 	),
 	goldmark.WithRendererOptions(
-		html.WithHardWraps(),
 		html.WithXHTML(),
 		html.WithUnsafe(),
 	),
 )
 
-// renderMarkdown transformă Markdown (inclusiv blocuri ```asm / ```bash) în HTML.
+// renderMarkdown transformă Markdown (inclusiv blocuri ~~~asm / ~~~bash) în HTML.
 func renderMarkdown(src string) template.HTML {
 	var buf bytes.Buffer
 	if err := md.Convert([]byte(src), &buf); err != nil {

@@ -7,6 +7,8 @@
     --accent: #3fb950;
     --accent-dim: #2ea043;
     --danger: #f85149;
+    --code-bg: #0b0e14;
+    --inline-code: #f0c674;
 }
 
 * {
@@ -142,9 +144,82 @@ a:hover {
     font-size: 0.85rem;
 }
 
+/* Articole — NU folosi white-space: pre-wrap pe HTML randat din Markdown */
+.article h1 {
+    margin-bottom: 0.35rem;
+}
+
 .article-content {
-    white-space: pre-wrap;
-    margin-top: 1rem;
+    margin-top: 1.25rem;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    white-space: normal;
+}
+
+.article-content > *:first-child {
+    margin-top: 0;
+}
+
+.article-content h2,
+.article-content h3 {
+    color: var(--accent);
+    margin-top: 1.6em;
+    margin-bottom: 0.45em;
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3em;
+}
+
+.article-content p {
+    margin: 0.65em 0;
+}
+
+.article-content ul,
+.article-content ol {
+    margin: 0.65em 0;
+    padding-left: 1.6em;
+}
+
+.article-content li {
+    margin: 0.25em 0;
+}
+
+.article-content li p {
+    margin: 0.2em 0;
+}
+
+.article-content strong {
+    font-weight: 600;
+    color: #e6edf3;
+}
+
+.article-content code {
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 0.9em;
+    background: var(--bg-alt);
+    color: var(--inline-code);
+    padding: 0.12em 0.38em;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+.article-content pre {
+    margin: 1.1em 0;
+    padding: 1em 1.15em;
+    background: var(--code-bg);
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    white-space: pre;
+}
+
+.article-content pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: inherit;
 }
 
 .comments {
