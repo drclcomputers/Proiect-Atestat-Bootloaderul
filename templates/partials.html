@@ -1,40 +1,39 @@
 {{define "header"}}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{.Title}} · Bootloader — Atestat</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <a class="brand" href="/">&gt;_ boot/dev</a>
-        <nav>
-            <a href="/">Acasa</a>
-            <a href="/articles">Jurnal</a>
-            <a href="/quiz">Quiz</a>
-            {{if .User}}
-                {{if .User.IsAdmin}}<a href="/admin">Admin</a>{{end}}
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{{.Title}} · Bootloader — Atestat</title>
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        <header class="site-header">
+            <a class="brand" href="/">&gt;_ boot/dev</a>
+            <nav>
+                <a href="/">Acasă</a>
+                <a href="/articles">Jurnal</a>
+                <a href="/quiz">Quiz</a>
+                {{if .User}} {{if .User.IsAdmin}}<a href="/admin">Admin</a
+                >{{end}}
                 <span class="who">{{.User.Username}}</span>
                 <form action="/logout" method="post" class="inline">
                     <button type="submit" class="link-btn">Delogare</button>
                 </form>
-            {{else}}
+                {{else}}
                 <a href="/login">Autentificare</a>
                 <a href="/register">Cont nou</a>
-            {{end}}
-        </nav>
-    </header>
-    <main class="container">
-        {{if .Flash}}<div class="flash flash-{{.FlashKind}}">{{.Flash}}</div>{{end}}
-{{end}}
-
-{{define "footer"}}
-    </main>
-    <footer class="site-footer">
-        Proiect atestat &mdash; Bootloader: primul pas inspre crearea unui sistem de operare.
-    </footer>
-</body>
+                {{end}}
+            </nav>
+        </header>
+        <main class="container">
+            {{if .Flash}}
+            <div class="flash flash-{{.FlashKind}}">{{.Flash}}</div>
+            {{end}} {{end}} {{define "footer"}}
+        </main>
+        <footer class="site-footer">
+            Bootloader-ul - Primul pas înspre crearea unui sistem de operare.
+        </footer>
+    </body>
 </html>
 {{end}}

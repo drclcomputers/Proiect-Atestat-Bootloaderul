@@ -1,5 +1,4 @@
-{{define "articles-list"}}
-{{template "header" .}}
+{{define "articles-list"}} {{template "header" .}}
 
 <h1>Jurnal de dezvoltare</h1>
 <div class="card-grid">
@@ -10,9 +9,8 @@
         <span class="meta">{{.PublishedAt.Format "02.01.2006"}}</span>
     </a>
     {{else}}
-    <p>Inca nu exista articole.</p>
+    <p>Încă nu există articole.</p>
     {{end}}
 </div>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}

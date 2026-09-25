@@ -13,8 +13,7 @@ import (
 const sessionCookieName = "session_token"
 const sessionDuration = 7 * 24 * time.Hour
 
-// hashPassword derives a salted SHA-256 hash. Suficient pentru un proiect
-// scolar; intr-un produs real s-ar folosi bcrypt/argon2.
+// hashPassword transforma parola într-un hash pentru a o nu salva direct în baza de date (din motive de securitate)
 func hashPassword(password, salt string) string {
 	sum := sha256.Sum256([]byte(salt + ":" + password))
 	return hex.EncodeToString(sum[:])
@@ -66,7 +65,7 @@ func destroySession(token string) {
 	db.Exec(`DELETE FROM sessions WHERE token = ?`, token)
 }
 
-// currentUser returns the logged-in user for this request, or nil.
+// currentUser returnează userul conectat
 func currentUser(r *http.Request) *User {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
@@ -109,7 +108,6 @@ func clearSessionCookie(w http.ResponseWriter) {
 	})
 }
 
-// requireAdmin wraps a handler so only logged-in admins can access it.
 func requireAdmin(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u := currentUser(r)
@@ -147,8 +145,7 @@ func registerUser(username, password string) (*User, error) {
 	return getUserByID(id)
 }
 
-// --- HTTP handlers ---
-
+// Handlere HTTP care servesc fișierele HTML serverului
 func registerPageHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, "register", PageData{Title: "Inregistrare"})
 }

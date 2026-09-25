@@ -33,8 +33,7 @@ func adminDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, "admin-dashboard", PageData{Title: "Panou admin", Data: s})
 }
 
-// --- Articole ---
-
+// Articole
 func adminArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	articles, err := listArticles()
 	if err != nil {
@@ -102,8 +101,7 @@ func adminArticleDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/articles", http.StatusSeeOther)
 }
 
-// --- Quiz ---
-
+// Quiz
 func adminQuizHandler(w http.ResponseWriter, r *http.Request) {
 	questions, err := listQuizQuestions()
 	if err != nil {
@@ -135,8 +133,7 @@ func adminQuizDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/quiz", http.StatusSeeOther)
 }
 
-// --- Comentarii ---
-
+// Comentarii
 func adminCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query(
 		`SELECT c.id, c.article_id, a.title, c.user_id, u.username, c.content, c.created_at

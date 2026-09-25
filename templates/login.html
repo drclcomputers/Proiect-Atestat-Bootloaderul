@@ -1,19 +1,20 @@
-{{define "login"}}
-{{template "header" .}}
+{{define "login"}} {{template "header" .}}
 
 <div class="form-box">
     <h1>Autentificare</h1>
     <form action="/login" method="post">
-        <label>Nume utilizator
-            <input type="text" name="username" required autofocus>
+        <label
+            >Nume utilizator
+            <input type="text" name="username" required autofocus />
         </label>
-        <label>Parola
-            <input type="password" name="password" required>
+        <label
+            >Parola
+            <input type="password" name="password" required />
         </label>
+        <br />
         <button type="submit" class="btn">Autentificare</button>
     </form>
-    <p class="meta">Nu ai cont? <a href="/register">Inregistreaza-te</a></p>
+    <p class="meta">Nu ai cont? <a href="/register">Înregistrează-te</a></p>
 </div>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}

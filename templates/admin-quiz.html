@@ -1,35 +1,50 @@
-{{define "admin-quiz"}}
-{{template "header" .}}
+{{define "admin-quiz"}} {{template "header" .}}
 
 <h1>Administrare quiz</h1>
 
 <table class="admin-table">
-    <thead><tr><th>Intrebare</th><th>Corect</th><th></th></tr></thead>
+    <thead>
+        <tr>
+            <th>Intrebare</th>
+            <th>Corect</th>
+            <th></th>
+        </tr>
+    </thead>
     <tbody>
-    {{range .Data}}
+        {{range .Data}}
         <tr>
             <td>{{.Question}}</td>
             <td>{{.CorrectOption}}</td>
             <td class="actions">
-                <form action="/admin/quiz/{{.ID}}/delete" method="post" class="inline" onsubmit="return confirm('Stergi aceasta intrebare?');">
-                    <button type="submit" class="link-btn danger">Sterge</button>
+                <form
+                    action="/admin/quiz/{{.ID}}/delete"
+                    method="post"
+                    class="inline"
+                    onsubmit="return confirm('Stergi aceasta intrebare?');"
+                >
+                    <button type="submit" class="link-btn danger">
+                        Sterge
+                    </button>
                 </form>
             </td>
         </tr>
-    {{else}}
-        <tr><td colspan="3">Nicio intrebare.</td></tr>
-    {{end}}
+        {{else}}
+        <tr>
+            <td colspan="3">Nicio intrebare.</td>
+        </tr>
+        {{end}}
     </tbody>
 </table>
 
 <h2>Adauga intrebare</h2>
 <form action="/admin/quiz/new" method="post" class="form-box">
-    <label>Intrebare <input type="text" name="question" required></label>
-    <label>Optiunea A <input type="text" name="option_a" required></label>
-    <label>Optiunea B <input type="text" name="option_b" required></label>
-    <label>Optiunea C <input type="text" name="option_c" required></label>
-    <label>Optiunea D <input type="text" name="option_d" required></label>
-    <label>Raspuns corect (A/B/C/D)
+    <label>Intrebare <input type="text" name="question" required /></label>
+    <label>Optiunea A <input type="text" name="option_a" required /></label>
+    <label>Optiunea B <input type="text" name="option_b" required /></label>
+    <label>Optiunea C <input type="text" name="option_c" required /></label>
+    <label>Optiunea D <input type="text" name="option_d" required /></label>
+    <label
+        >Raspuns corect (A/B/C/D)
         <select name="correct_option" required>
             <option value="A">A</option>
             <option value="B">B</option>
@@ -37,9 +52,10 @@
             <option value="D">D</option>
         </select>
     </label>
-    <label>Explicatie (optional) <textarea name="explanation" rows="2"></textarea></label>
+    <label
+        >Explicatie (optional) <textarea name="explanation" rows="2"></textarea>
+    </label>
     <button type="submit" class="btn">Adauga</button>
 </form>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}

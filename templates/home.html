@@ -1,15 +1,15 @@
-{{define "home"}}
-{{template "header" .}}
+{{define "home"}} {{template "header" .}}
 
 <section class="hero">
-    <h1>Bootloader: primul pas inspre crearea unui sistem de operare</h1>
+    <h1>Bootloader-ul - Primul pas înspre crearea unui sistem de operare</h1>
     <p>
-        Proiect de atestat care documenteaza dezvoltarea unui bootloader x86 scris in Assembly —
-        de la pornirea calculatorului (BIOS &amp; MBR) pana la trecerea in protected mode.
+        Acest proiect documentează dezvoltarea unui bootloader x86 scris în
+        Assembly — de la pornirea calculatorului (BIOS &amp; MBR) până la
+        trecerea în protected mode.
     </p>
     <div class="hero-actions">
         <a class="btn" href="/articles">Vezi jurnalul de dezvoltare</a>
-        <a class="btn btn-outline" href="/quiz">Testeaza-ti cunostintele</a>
+        <a class="btn btn-outline" href="/quiz">Testează-ți cunoștințele</a>
     </div>
 </section>
 
@@ -22,10 +22,9 @@
             <p>{{.Summary}}</p>
         </a>
         {{else}}
-        <p>Inca nu exista articole.</p>
+        <p>Încă nu există articole.</p>
         {{end}}
     </div>
 </section>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}

@@ -1,28 +1,41 @@
-{{define "admin-articles"}}
-{{template "header" .}}
+{{define "admin-articles"}} {{template "header" .}}
 
 <h1>Administrare articole</h1>
 <a class="btn" href="/admin/articles/new">+ Articol nou</a>
 
 <table class="admin-table">
-    <thead><tr><th>Titlu</th><th>Data</th><th></th></tr></thead>
+    <thead>
+        <tr>
+            <th>Titlu</th>
+            <th>Data</th>
+            <th></th>
+        </tr>
+    </thead>
     <tbody>
-    {{range .Data}}
+        {{range .Data}}
         <tr>
             <td><a href="/articles/{{.Slug}}">{{.Title}}</a></td>
             <td>{{.PublishedAt.Format "02.01.2006"}}</td>
             <td class="actions">
                 <a href="/admin/articles/{{.ID}}/edit">Editeaza</a>
-                <form action="/admin/articles/{{.ID}}/delete" method="post" class="inline" onsubmit="return confirm('Stergi acest articol?');">
-                    <button type="submit" class="link-btn danger">Sterge</button>
+                <form
+                    action="/admin/articles/{{.ID}}/delete"
+                    method="post"
+                    class="inline"
+                    onsubmit="return confirm('Stergi acest articol?');"
+                >
+                    <button type="submit" class="link-btn danger">
+                        Sterge
+                    </button>
                 </form>
             </td>
         </tr>
-    {{else}}
-        <tr><td colspan="3">Niciun articol.</td></tr>
-    {{end}}
+        {{else}}
+        <tr>
+            <td colspan="3">Niciun articol.</td>
+        </tr>
+        {{end}}
     </tbody>
 </table>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}

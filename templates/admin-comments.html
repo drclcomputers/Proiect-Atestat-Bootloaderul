@@ -1,28 +1,43 @@
-{{define "admin-comments"}}
-{{template "header" .}}
+{{define "admin-comments"}} {{template "header" .}}
 
 <h1>Administrare comentarii</h1>
 
 <table class="admin-table">
-    <thead><tr><th>Articol</th><th>Utilizator</th><th>Comentariu</th><th>Data</th><th></th></tr></thead>
+    <thead>
+        <tr>
+            <th>Articol</th>
+            <th>Utilizator</th>
+            <th>Comentariu</th>
+            <th>Data</th>
+            <th></th>
+        </tr>
+    </thead>
     <tbody>
-    {{range .Data}}
+        {{range .Data}}
         <tr>
             <td>{{.ArticleTitle}}</td>
             <td>{{.Username}}</td>
             <td>{{.Content}}</td>
             <td>{{.CreatedAt.Format "02.01.2006 15:04"}}</td>
             <td class="actions">
-                <form action="/admin/comments/{{.ID}}/delete" method="post" class="inline" onsubmit="return confirm('Stergi acest comentariu?');">
-                    <button type="submit" class="link-btn danger">Sterge</button>
+                <form
+                    action="/admin/comments/{{.ID}}/delete"
+                    method="post"
+                    class="inline"
+                    onsubmit="return confirm('Stergi acest comentariu?');"
+                >
+                    <button type="submit" class="link-btn danger">
+                        Sterge
+                    </button>
                 </form>
             </td>
         </tr>
-    {{else}}
-        <tr><td colspan="5">Niciun comentariu.</td></tr>
-    {{end}}
+        {{else}}
+        <tr>
+            <td colspan="5">Niciun comentariu.</td>
+        </tr>
+        {{end}}
     </tbody>
 </table>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}

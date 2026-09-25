@@ -11,7 +11,7 @@ import (
 //go:embed schema.sql
 var schemaSQL string
 
-// initSchema creeaza baza de date daca nu exista
+// initSchema creează baza de date dacă nu există
 func initSchema(db *sql.DB) {
 	if _, err := db.Exec("PRAGMA foreign_keys = ON;"); err != nil {
 		log.Fatal(err)
@@ -21,7 +21,7 @@ func initSchema(db *sql.DB) {
 	}
 }
 
-// seedData creeaza contul de admin si quiz-ul doar daca nu exista, gen cand este creata baza de date
+// seedData creează contul de admin și quiz-ul doar dacă nu există, gen când este creată baza de date
 func seedData(db *sql.DB) {
 	var count int
 	if err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count); err != nil {
@@ -41,7 +41,7 @@ func seedData(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Cont admin creat -> utilizator: admin | parola: admin123 (schimb-o din panoul de admin sau direct in DB)")
+	log.Println("Cont admin default creat -> utilizator: admin | parolă: admin123")
 
 	// Articole
 	articles := []struct{ slug, title, summary, content string }{
@@ -50,18 +50,18 @@ func seedData(db *sql.DB) {
 			"Ce este un bootloader?",
 			"O introducere în procesul de pornire al unui calculator: BIOS, MBR și primii pași spre un sistem de operare.",
 			"Când pornești calculatorul, procesorul execută codul aflat la o adresă fixă în memorie, controlat inițial de firmware-ul BIOS (Basic Input Output System). " +
-				"BIOS-ul caută un dispozitiv de boot valid (Hard Drive, CD, FDD, Stick USB, etc) și încarcă primii 512 de bytes ai acestuia (Master Boot Record) la adresa 0x7C00, " +
-				"apoi predă controlul acolo dacă ultimii doi bytes conțin semnatura 0xAA55.\n\n" +
-				"Bootloaderul este exact acest cod de 512 bytes: prima bucata de software scrisă de programator care ruleaza pe masină. " +
-				"Rolul lui este să pregătească terenul pentru sistemul de operare: afișează mesaje, inițializează hardware minim si, " +
+				"BIOS-ul caută un dispozitiv de boot valid (Hard Drive, CD, FDD, Stick USB, etc) și încarcă primii 512 de octeți ai acestuia (Master Boot Record) la adresa 0x7C00, " +
+				"apoi predă controlul acolo dacă ultimii doi octeți conțin semnătura 0xAA55.\n\n" +
+				"Bootloaderul este exact acest cod de 512 octeți: prima bucată de software scrisă de programator care rulează pe mașină. " +
+				"Rolul lui este să pregătească terenul pentru sistemul de operare: afișează mesaje, inițializează hardware minim și, " +
 				"cel mai important, trece procesorul din real mode (16-bit, moștenit din anii '80 de pe Intel 8086) în protected mode (32-bit), " +
-				"unde poate accesa toata memoria disponibila (de precizat că limita maximă pentru 32 de biți este sub 4GB, undeva la 3.5GB) și poate rula cod modern.",
+				"unde poate accesa toată memoria disponibilă (de precizat că limita maximă pentru 32 de biți este sub 4GB, undeva la 3.5GB) și poate rula cod modern.",
 		},
 		{
 			"real-mode-vs-protected-mode",
 			"Real mode vs Protected mode",
 			"Diferențele esențiale între cele două moduri de funcționare ale procesorului x86 și de ce bootloaderul trebuie să treacă prin ambele.",
-			"La pornire, un procesor x86 începe întotdeauna în real mode, din motive de compatibilitate cu sistemele vechi (anii 80'). " +
+			"La pornire, un procesor x86 începe întotdeauna în real mode, din motive de compatibilitate cu sistemele vechi (anii '80). " +
 				"În real mode adresele de memorie sunt calculate din perechi \"segment:offset\" și sunt limitate la 1 MB de memorie adresabilă (teoretic doar 1MB, dar adesea doar 640KB, restul necesitând niște 'artificii').\n\n" +
 				"Protected mode elimină această limitare: folosește adrese pe 32 de biți, oferă protecție a memoriei între procese (dacă un program se blochează, nu blochează tot sistemul) și acces la " +
 				"toată memoria fizică (teoretic 4GB, practic doar 3.5GB). Trecerea între cele două moduri se face prin setarea bitului 'PE' din registrul 'CR0', dar înainte de asta " +
@@ -70,13 +70,12 @@ func seedData(db *sql.DB) {
 		{
 			"jurnal-progres",
 			"Jurnal de progres",
-			"Etapele parcurse pana acum in dezvoltarea bootloaderului si urmatorii pasi planificati.",
-			"Etapa 1: bootloader minimal care afiseaza un mesaj pe ecran folosind intreruperea BIOS int 0x10, testat in QEMU.\n\n" +
-				"Etapa 2: construirea unui GDT valid si trecerea in protected mode.\n\n" +
-				"Etapa 3 (planificata): incarcarea unui al doilea stagiu de pe disc, deoarece 512 bytes sunt insuficienti pentru mai mult " +
-				"decat pasii de baza.\n\n" +
-				"Pas urmator, dincolo de atestat: acest bootloader este primul caramid pentru ASMOS, un proiect personal de sistem de operare " +
-				"la care lucrez in continuare.",
+			"Etapele parcurse până acum în dezvoltarea bootloaderului și următorii pași planificați.",
+			"Etapa 1: bootloader minimal care afișează un mesaj pe ecran folosind întreruperea BIOS int 0x10, testat în QEMU.\n\n" +
+				"Etapa 2: construirea unui GDT valid și trecerea în protected mode.\n\n" +
+				"Etapa 3 (planificată): încărcarea unui al doilea stagiu de pe disc, deoarece 512 octeți sunt insuficienți pentru mai mult " +
+				"decât pașii de bază.\n\n" +
+				"Pasul următor: integrarea limbajului de programare C pentru a începe să-ți scrii propriile funcții și librării.",
 		},
 	}
 	for _, a := range articles {
@@ -89,39 +88,39 @@ func seedData(db *sql.DB) {
 		}
 	}
 
-	// Intrebari quiz
+	// Întrebări quiz
 	questions := []struct {
 		q, a, b, c, d, correct, explanation string
 	}{
 		{
-			"Cati bytes are Master Boot Record-ul (MBR)?",
-			"256 bytes", "512 bytes", "1024 bytes", "4096 bytes",
+			"Câți octeți (bytes) are Master Boot Record-ul (MBR)?",
+			"256 octeți", "512 octeți", "1024 octeți", "4096 octeți",
 			"B",
-			"MBR-ul ocupa exact un sector de disc: 512 bytes, dintre care ultimii 2 sunt semnatura 0x55AA.",
+			"MBR-ul ocupă exact un sector de disc: 512 octeți, dintre care ultimii 2 sunt semnătura 0x55AA.",
 		},
 		{
-			"Ce intrerupere BIOS este folosita de obicei pentru afisarea de text in real mode?",
+			"Ce întrerupere BIOS este folosită de obicei pentru afișarea de text în real mode?",
 			"int 0x13", "int 0x21", "int 0x10", "int 0x80",
 			"C",
-			"int 0x10 este intreruperea de servicii video a BIOS-ului, folosita printre altele pentru afisarea caracterelor pe ecran.",
+			"int 0x10 este întreruperea de servicii video a BIOS-ului, folosită printre altele pentru afișarea caracterelor pe ecran.",
 		},
 		{
-			"Care structura trebuie definita inainte de a trece in protected mode?",
-			"Un stack pointer", "Un GDT (Global Descriptor Table)", "Un fisier de configurare", "O tabela de rutare",
+			"Care structură trebuie definită înainte de a trece în protected mode?",
+			"Un stack pointer", "Un GDT (Global Descriptor Table)", "Un fișier de configurare", "O tabelă de rutare",
 			"B",
-			"GDT-ul descrie segmentele de memorie (cod, date) pe care procesorul le va folosi in protected mode.",
+			"GDT-ul descrie segmentele de memorie (cod, date) pe care procesorul le va folosi în protected mode.",
 		},
 		{
-			"La ce adresa de memorie incarca BIOS-ul, in mod traditional, bootloaderul?",
+			"La ce adresă de memorie încarcă BIOS-ul, în mod tradițional, bootloaderul?",
 			"0x0000", "0x7C00", "0xFFFF", "0x1000",
 			"B",
-			"Conventia mostenita de la primele PC-uri IBM este incarcarea la adresa 0x7C00 in memorie.",
+			"Convenția moștenită de la primele PC-uri IBM este încărcarea la adresa 0x7C00 în memorie.",
 		},
 		{
-			"Care este principala limitare a real mode-ului pe care protected mode-ul o rezolva?",
-			"Viteza procesorului", "Adresarea limitata la 1 MB de memorie", "Lipsa suportului pentru tastatura", "Lipsa unei surse de alimentare",
+			"Care este principala limitare a real mode-ului pe care protected mode-ul o rezolvă?",
+			"Viteza procesorului", "Adresarea limitată la 1 MB de memorie", "Lipsa suportului pentru tastatură", "Lipsa unei surse de alimentare",
 			"B",
-			"In real mode, adresarea segment:offset limiteaza memoria accesibila la aproximativ 1 MB.",
+			"În real mode, adresarea segment:offset limitează memoria accesibilă la aproximativ 1 MB.",
 		},
 	}
 	for _, qz := range questions {

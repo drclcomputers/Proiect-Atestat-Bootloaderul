@@ -1,21 +1,34 @@
-{{define "quiz"}}
-{{template "header" .}}
+{{define "quiz"}} {{template "header" .}}
 
 <h1>Quiz: procesul de boot</h1>
-<p class="meta">Raspunde la toate intrebarile si vezi scorul tau la final.{{if not .User}} Autentifica-te ca sa-ti fie salvat scorul.{{end}}</p>
+<p class="meta">
+    Răspunde la toate întrebările și vezi scorul tău la final.{{if not .User}}
+    Autentifică-te ca să-ți fie salvat scorul.{{end}}
+</p>
 
 <form action="/quiz/submit" method="post" class="quiz-form">
     {{range $q := .Data}}
     <fieldset class="quiz-question">
         <legend>{{$q.Question}}</legend>
-        <label><input type="radio" name="q{{$q.ID}}" value="A" required> {{$q.OptionA}}</label>
-        <label><input type="radio" name="q{{$q.ID}}" value="B"> {{$q.OptionB}}</label>
-        <label><input type="radio" name="q{{$q.ID}}" value="C"> {{$q.OptionC}}</label>
-        <label><input type="radio" name="q{{$q.ID}}" value="D"> {{$q.OptionD}}</label>
+        <label
+            ><input type="radio" name="q{{$q.ID}}" value="A" required />
+            {{$q.OptionA}}</label
+        >
+        <label
+            ><input type="radio" name="q{{$q.ID}}" value="B" />
+            {{$q.OptionB}}</label
+        >
+        <label
+            ><input type="radio" name="q{{$q.ID}}" value="C" />
+            {{$q.OptionC}}</label
+        >
+        <label
+            ><input type="radio" name="q{{$q.ID}}" value="D" />
+            {{$q.OptionD}}</label
+        >
     </fieldset>
     {{end}}
-    <button type="submit" class="btn">Trimite raspunsurile</button>
+    <button type="submit" class="btn">Trimite răspunsurile</button>
 </form>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}

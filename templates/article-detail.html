@@ -1,5 +1,4 @@
-{{define "article-detail"}}
-{{template "header" .}}
+{{define "article-detail"}} {{template "header" .}}
 
 <article class="article">
     <h1>{{.Data.Article.Title}}</h1>
@@ -18,19 +17,27 @@
     </div>
     {{else}}
     <p class="meta">Niciun comentariu inca.</p>
-    {{end}}
-
-    {{if .User}}
-    <form action="/articles/{{.Data.Article.Slug}}/comments" method="post" class="comment-form">
-        <textarea name="content" placeholder="Scrie un comentariu..." required></textarea>
+    {{end}} {{if .User}}
+    <form
+        action="/articles/{{.Data.Article.Slug}}/comments"
+        method="post"
+        class="comment-form"
+    >
+        <textarea
+            name="content"
+            placeholder="Scrie un comentariu..."
+            required
+        ></textarea>
         <button type="submit" class="btn">Trimite comentariu</button>
     </form>
     {{else}}
     <p class="meta">
-        <a href="/login?next=/articles/{{.Data.Article.Slug}}">Autentifica-te</a> pentru a lasa un comentariu.
+        <a href="/login?next=/articles/{{.Data.Article.Slug}}"
+            >Autentifica-te</a
+        >
+        pentru a lasa un comentariu.
     </p>
     {{end}}
 </section>
 
-{{template "footer" .}}
-{{end}}
+{{template "footer" .}} {{end}}
