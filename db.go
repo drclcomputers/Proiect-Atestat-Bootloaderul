@@ -49,9 +49,9 @@ func seedData(db *sql.DB) {
 			"pregatirea-spatiului-de-lucru",
 			"Pregătirea spațiului de lucru",
 			"Uneltele, sistemul gazdă și emulatorul de care ai nevoie înainte să scrii primul octet de bootloader.",
-			`Dezvoltarea unui sistem de operare (sau măcar a primului său program, bootloaderul) începe rar cu o instrucțiune <code>jmp</code>. Începe cu un mediu de lucru predictibil: un assembler, un emulator și un folder în care poți recompila în câteva secunde. Fără astea, fiecare încercare înseamnă să copiezi un binar pe un stick și să repornești un calculator real — lent și, dacă greșești semnătura de boot, frustrant.
+			`Dezvoltarea unui sistem de operare (sau măcar a primului său program, bootloaderul) începe rar cu o instrucțiune <code>jmp</code>. Începe cu o dorință puternică de învățare, FOOOARTE multă răbdare și zile sau săptămțni întregi de citit cărți, articole și urmărit tutoriale indiene la 11 noaptea. După, urmează configurarea unui mediu de lucru predictibil: un assembler, un emulator și un folder în care poți recompila în câteva secunde. Fără astea, fiecare încercare înseamnă să copiezi un fișier binar pe un stick și să repornești un calculator real (indiferent că e un 386 sau Ryzen 9 9950X) — lent spre foarte lent și, dacă greșești semnătura de boot, frustrant căci nu știi ce nu merge și de ce nu afișează nimic.
 
-Ideea e aceeași ca în *The little book about OS development* (Helin & Renberg): instalezi un set mic de unelte pe un sistem UNIX, apoi rulezi totul într-o **mașină virtuală**. În jurnalul de față nu folosim GRUB și un kernel ELF, ci un bootloader clasic de 512 octeți, asamblat cu NASM și pornit de QEMU ca dischetă. Uneltele se potrivesc totuși aproape 1:1.
+Ideea e aceeași ca în cartea din care am învățat mai tot *The little book about OS development* (Helin & Renberg): instalezi un set mic de unelte pe un sistem UNIX, apoi rulezi totul într-o **mașină virtuală**. În jurnalul de față nu folosim GRUB și un kernel ELF, ci un bootloader clasic de 512 octeți, asamblat cu NASM și pornit de QEMU ca dischetă. Uneltele se potrivesc totuși aproape 1:1, NASM + QEMU fiind mult mai simple pentru începători.
 
 ### Sistemul de operare gazdă
 
@@ -59,20 +59,20 @@ Toate exemplele presupun un mediu de tip UNIX:
 
 - **Linux** (Ubuntu / Debian / Fedora) — cel mai simplu, pachetele sunt în depozitele oficiale
 - **macOS** — funcționează bine cu Homebrew
-- **Windows** — posibil prin WSL2 (Ubuntu în Windows); evită MinGW pentru NASM + QEMU dacă poți
+- **Windows** — posibil prin WSL2 (Ubuntu în Windows); evită MinGW și alte assemblere — pot să nu funcționeze corect
 
-Cartea originală folosește Ubuntu. Dacă vrei zero surprize, o mașină virtuală Ubuntu (VirtualBox sau UTM) e suficientă, chiar dacă tu lucrezi pe Windows sau pe Mac.
+Cartea originală folosește Ubuntu. Dacă vrei nicio surpriză, o mașină virtuală Ubuntu (VirtualBox sau UTM) e suficientă, chiar dacă tu lucrezi pe Windows sau pe Mac.
 
 ### Uneltele
 
 Ai nevoie de patru lucruri:
 
-1. **NASM** — assemblerul. Sintaxa Intel e mai lizibilă decât assembler-ul GNU, iar <code>-f bin</code> produce exact cei 512 octeți ai unui MBR, fără ELF, fără linker.
+1. **NASM** — assemblerul. Sintaxa Intel e mai lizibilă decât pe assembler-ul GNU, iar <code>-f bin</code> produce exact cei 512 octeți ai unui MBR, fără ELF, fără linker, mult mai simplu.
 2. **QEMU** — emulator x86. Pornește un „PC” în câteva milisecunde, cu discheta noastră în unitatea *A:*. Alternative bune, dar mai complicat de configurat: Bochs (debugger bun; oferă o foarte precisă idee asupra instrucțiunilor executate linie cu linie de procesor) și VirtualBox (mai greoi pentru un binar de 512 octeți întrucât este folosit mai degrabă pentru mașini virtuale cu sisteme de operare mature).
-3. **Un editor** — orice în care poți scrie Assembly (VS Code, Neovim, Zed, absolut orice — chiar și NotePad). Un plugin de syntax highlighting pentru NASM ajută.
+3. **Un editor** — orice în care poți scrie Assembly (VS Code, Neovim, Zed — chiar și NotePad). Un plugin de syntax highlighting pentru NASM ajută la identificarea instrucțiunilor.
 4. **Make** (opțional, dar util) — ca să nu tastezi de fiecare dată linia de NASM + QEMU.
 
-Nu-ți trebuie GCC, GRUB sau <code>genisoimage</code> pentru articolele din acest jurnal. Ele apar în *littleosbook* pentru că acolo nucleul e un executabil ELF încărcat de GRUB. Aici BIOS-ul încarcă direct sectorul 0.
+Nu-ți trebuie GCC, GRUB sau <code>genisoimage</code> pentru articolele din acest jurnal. Ele apar în *littleosbook* pentru că acolo nucleul e un executabil ELF încărcat de GRUB (bootloader profesional folosit de Linux și alte sisteme de operare). Aici BIOS-ul încarcă direct sectorul 0.
 
 ### Instalare pe Ubuntu / Debian
 
@@ -104,13 +104,11 @@ Pe un PC fizic, ciclul e: scrii, asamblezi, copiezi pe USB, repornești, te uiț
 
 - pornești din terminal, în câteva secunde
 - poți opri, reface binarul, reporni
-- un ecran gol **fără mesaj de eroare de boot** înseamnă că semnătura *0xAA55* a fost acceptată
+- un ecran gol **fără mesaj de eroare de boot** înseamnă că semnătura **0xAA55** a fost acceptată
 
-Dezavantajul, recunoscut și în carte: succesul în emulator nu garantează că același binar merge pe un laptop din 2009.
+Dezavantajul, recunoscut și în carte: succesul în emulator nu garantează că același binar merge pe un laptop din 2009. Am petrecut 3 zile încercând să-mi fac calculatorul să booteze de pe stick, dar într-un final am aflat că placa mea video nu suportă moduri de afișaj așa de "antice".
 
 ### Structura folderului
-
-Un folder mic, lângă site-ul de atestat, e destul:
 
 ~~~text
 bootloader/
@@ -141,7 +139,7 @@ clean:
 	rm -f *.bin
 ~~~
 
-<code>-fda</code> spune QEMU-ului „tratează acest fișier ca pe o dischetă”. BIOS-ul emulat citește sectorul 0, caută *0x55AA*, încarcă la *0x7C00* și sare acolo — exact lanțul descris în articolul următor.
+<code>-fda</code> spune QEMU-ului „tratează acest fișier ca pe o dischetă”. BIOS-ul emulat citește sectorul 0, caută **0x55AA**, încarcă la **0x7C00** și sare acolo — exact lanțul descris în articolul următor.
 
 ### Primul test, înainte de orice teorie
 
@@ -169,9 +167,9 @@ Dacă QEMU deschide o fereastră neagră, fără „Boot failed”, mediul e gat
 
 ### Ce nu instalăm (încă)
 
-- **GRUB / Multiboot / ELF** — utile când treci de la un sector de 512 octeți la un nucleu C.
-- **Bochs** — bun când vrei să inspectezi registrele după o buclă (în carte se caută <code>EAX=CAFEBABE</code> în log).
-- **Un cross-compiler i686-elf-gcc** — necesar abia când C-ul nu mai are libc (librăria default care conține majoritatea funcțiilor uzuale din acest limbaj) și trebuie să eviți header-ele de pe gazdă.
+- **GRUB / Multiboot / ELF** — utile când treci de la un sector de 512 octeți la un nucleu C — satisfăcător, dar creează o mulțime de alte probleme și dureri de cap.
+- **Bochs** — bun când vrei să inspectezi registrele după o buclă.
+- **Un cross-compiler i686-elf-gcc** — necesar abia când C-ul nu mai are libc (librăria default care conține majoritatea funcțiilor uzuale din acest limbaj nu există în OS-ul nostru) și trebuie să eviți header-ele de pe gazdă.
 
 ### Ce urmează
 
