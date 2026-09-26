@@ -15,19 +15,19 @@
     <tbody>
         {{range .Data}}
         <tr>
-            <td>{{.ArticleTitle}}</td>
-            <td>{{.Username}}</td>
-            <td>{{.Content}}</td>
-            <td>{{.CreatedAt.Format "02.01.2006 15:04"}}</td>
-            <td class="actions">
+            <td data-label="Articol">{{.ArticleTitle}}</td>
+            <td data-label="Utilizator">{{.Username}}</td>
+            <td data-label="Comentariu">{{.Content}}</td>
+            <td data-label="Data">{{.CreatedAt.Format "02.01.2006 15:04"}}</td>
+            <td data-label="Acțiuni" class="actions">
                 <form
                     action="/admin/comments/{{.ID}}/delete"
                     method="post"
                     class="inline"
-                    onsubmit="return confirm('Stergi acest comentariu?');"
+                    onsubmit="return confirm('Ștergi acest comentariu?');"
                 >
                     <button type="submit" class="link-btn danger">
-                        Sterge
+                        Șterge
                     </button>
                 </form>
             </td>
@@ -39,5 +39,9 @@
         {{end}}
     </tbody>
 </table>
+
+<p style="margin-top: 1.5rem">
+    <a class="btn" href="/admin">← Înapoi la panou</a>
+</p>
 
 {{template "footer" .}} {{end}}

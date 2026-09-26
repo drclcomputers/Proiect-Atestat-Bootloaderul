@@ -169,3 +169,50 @@ func adminCommentDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	db.Exec(`DELETE FROM comments WHERE id = ?`, id)
 	http.Redirect(w, r, "/admin/comments", http.StatusSeeOther)
 }
+
+// schimbare parolă useri (doar admin)
+func adminUsersHandler(w http.ResponseWriter, r *http.Request) {
+	users, err := listUsers()
+	if err != nil {
+		http.Error(w, "eroare server", http.StatusInternalServerError)
+		return
+	}
+	render(w, r, "admin-users", PageData{Title: "Administrare utilizatori", Data: users})
+}
+
+func adminChangePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	r.ParseForm()
+	newPassword := r.FormValue("password")
+
+	if err := updateUserPassword(id, newPassword); err != nil {
+		users, _ := listUsers()
+		render(w, r, "admin-users", PageData{
+			Title:     "Administrare utilizatori",
+			Flash:     err.Error(),
+			FlashKind: "error",
+			Data:      users,
+		})
+		return
+	}
+	http.Redirect(w, r, "/admin/users?ok=1", http.StatusSeeOther)
+}
+
+func adminUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	current := currentUser(r)
+
+	if current != nil && current.ID == id {
+		users, _ := listUsers()
+		render(w, r, "admin-users", PageData{
+			Title:     "Administrare utilizatori",
+			Flash:     "Nu poți șterge contul cu care ești autentificat.",
+			FlashKind: "error",
+			Data:      users,
+		})
+		return
+	}
+
+	db.Exec(`DELETE FROM users WHERE id = ?`, id)
+	http.Redirect(w, r, "/admin/users?ok=deleted", http.StatusSeeOther)
+}

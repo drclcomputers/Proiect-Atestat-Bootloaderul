@@ -1,6 +1,6 @@
 {{define "admin-article-form"}} {{template "header" .}}
 
-<h1>{{if .Data.ID}}Editeaza articol{{else}}Articol nou{{end}}</h1>
+<h1>{{if .Data.ID}}Editează articol{{else}}Articol nou{{end}}</h1>
 
 <form
     action="{{if .Data.ID}}/admin/articles/{{.Data.ID}}/edit{{else}}/admin/articles/new{{end}}"
@@ -12,14 +12,18 @@
         <input type="text" name="title" value="{{.Data.Title}}" required />
     </label>
     <label
-        >Rezumat (afisat in liste)
+        >Rezumat (afișat în liste)
         <textarea name="summary" rows="2" required>{{.Data.Summary}}</textarea>
     </label>
     <label
-        >Continut
+        >Conținut
         <textarea name="content" rows="12" required>{{.Data.Content}}</textarea>
     </label>
-    <button type="submit" class="btn">Salveaza</button>
+
+    <div class="form-actions">
+        <a class="btn btn-outline" href="/admin/articles">Anulează</a>
+        <button type="submit" class="btn">Salvează</button>
+    </div>
 </form>
 
 {{template "footer" .}} {{end}}

@@ -69,6 +69,10 @@ func main() {
 	mux.HandleFunc("GET /admin/comments", requireAdmin(adminCommentsHandler))
 	mux.HandleFunc("POST /admin/comments/{id}/delete", requireAdmin(adminCommentDeleteHandler))
 
+	mux.HandleFunc("GET /admin/users", requireAdmin(adminUsersHandler))
+	mux.HandleFunc("POST /admin/users/{id}/password", requireAdmin(adminChangePasswordHandler))
+	mux.HandleFunc("POST /admin/users/{id}/delete", requireAdmin(adminUserDeleteHandler))
+
 	addr := ":8080"
 	log.Println("Server pornit → http://localhost" + addr)
 	log.Fatal(http.ListenAndServe(addr, logRequests(mux)))

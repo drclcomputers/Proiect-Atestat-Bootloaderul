@@ -14,18 +14,20 @@
     <tbody>
         {{range .Data}}
         <tr>
-            <td><a href="/articles/{{.Slug}}">{{.Title}}</a></td>
-            <td>{{.PublishedAt.Format "02.01.2006"}}</td>
-            <td class="actions">
-                <a href="/admin/articles/{{.ID}}/edit">Editeaza</a>
+            <td data-label="Titlu">
+                <a href="/articles/{{.Slug}}">{{.Title}}</a>
+            </td>
+            <td data-label="Data">{{.PublishedAt.Format "02.01.2006"}}</td>
+            <td data-label="Acțiuni" class="actions">
+                <a href="/admin/articles/{{.ID}}/edit">Editează</a>
                 <form
                     action="/admin/articles/{{.ID}}/delete"
                     method="post"
                     class="inline"
-                    onsubmit="return confirm('Stergi acest articol?');"
+                    onsubmit="return confirm('Ștergi acest articol?');"
                 >
                     <button type="submit" class="link-btn danger">
-                        Sterge
+                        Șterge
                     </button>
                 </form>
             </td>
@@ -37,5 +39,9 @@
         {{end}}
     </tbody>
 </table>
+
+<p style="margin-top: 1.5rem">
+    <a class="btn" href="/admin">← Înapoi la panou</a>
+</p>
 
 {{template "footer" .}} {{end}}

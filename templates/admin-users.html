@@ -1,0 +1,64 @@
+{{define "admin-users"}} {{template "header" .}}
+
+<h1>Administrare utilizatori</h1>
+
+<table class="admin-table users-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Utilizator</th>
+            <th>Admin</th>
+            <th>Creat la</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data}}
+        <tr>
+            <td data-label="ID">{{.ID}}</td>
+            <td data-label="Utilizator">{{.Username}}</td>
+            <td data-label="Admin">{{if .IsAdmin}}Da{{else}}Nu{{end}}</td>
+            <td data-label="Creat la">
+                {{.CreatedAt.Format "02.01.2006 15:04"}}
+            </td>
+            <td data-label="Acțiuni" class="actions">
+                <form
+                    method="POST"
+                    action="/admin/users/{{.ID}}/password"
+                    class="inline-form"
+                >
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Parolă nouă"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                    />
+                    <button type="submit" class="btn btn-sm">Schimbă</button>
+                </form>
+                <form
+                    action="/admin/users/{{.ID}}/delete"
+                    method="post"
+                    class="inline"
+                    onsubmit="return confirm('Ștergi utilizatorul {{.Username}}? Această acțiune este definitivă.');"
+                >
+                    <button type="submit" class="link-btn danger">
+                        Șterge
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="5">Niciun utilizator.</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+<p style="margin-top: 1.5rem">
+    <a class="btn" href="/admin">← Înapoi la panou</a>
+</p>
+
+{{template "footer" .}} {{end}}

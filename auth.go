@@ -207,3 +207,36 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	clearSessionCookie(w)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func updateUserPassword(userID int64, newPassword string) error {
+	if len(newPassword) < 6 {
+		return errors.New("parola trebuie să aibă minim 6 caractere")
+	}
+	salt := randomHex(16)
+	hash := hashPassword(newPassword, salt)
+	_, err := db.Exec(
+		`UPDATE users SET password_hash = ?, salt = ? WHERE id = ?`,
+		hash, salt, userID,
+	)
+	return err
+}
+
+func listUsers() ([]User, error) {
+	rows, err := db.Query(`SELECT id, username, password_hash, salt, is_admin, created_at FROM users ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var u User
+		var isAdmin int
+		if err := rows.Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Salt, &isAdmin, &u.CreatedAt); err != nil {
+			return nil, err
+		}
+		u.IsAdmin = isAdmin == 1
+		users = append(users, u)
+	}
+	return users, nil
+}
