@@ -1,0 +1,116 @@
+{{define "playground"}} {{template "header" .}}
+
+<div class="play-layout">
+    <section class="hero">
+        <h1>Playground</h1>
+        <p>
+            Scrie un bootloader în Assembly, iar serverul îl va asambla automat
+            cu NASM—fără bătăi de cap sau instalări. Pornește-l direct aici, în
+            emulatorul v86.
+        </p>
+    </section>
+
+    <div class="play-grid">
+        <div class="play-col">
+            <div class="play-toolbar">
+                <label>
+                    Exemplu
+                    <select id="template-select">
+                        <option value="hello">Hello, World! (int 0x10)</option>
+                        <option value="start">Buclă infinită</option>
+                        <option value="pm">Hello în protected mode</option>
+                    </select>
+                </label>
+                <span class="meta" id="code-stats"
+                    >max. un sector de boot + padding floppy</span
+                >
+            </div>
+
+            <div class="play-editor">
+                <div class="play-editor-bar">
+                    <span>boot.asm</span>
+                    <button type="button" id="copy-code" class="link-btn">
+                        copiază
+                    </button>
+                </div>
+                <textarea id="assembly-code" spellcheck="false"></textarea>
+            </div>
+
+            <div class="play-actions">
+                <button type="button" id="build-boot-btn" class="btn">
+                    Asamblează și pornește
+                </button>
+                <button
+                    type="button"
+                    id="download-bin-btn"
+                    class="btn btn-outline"
+                >
+                    Descarcă .bin
+                </button>
+            </div>
+        </div>
+
+        <div class="play-col">
+            <div class="play-screen-card">
+                <div class="play-screen-bar">
+                    <span>Afișaj VGA (text mode)</span>
+                    <span id="emulator-status" class="meta">oprit</span>
+                </div>
+                <div class="play-screen-wrap">
+                    <div id="screen-placeholder" class="play-placeholder">
+                        Apasă „Asamblează și pornește”. Serverul apelează
+                        <code>nasm -f bin</code>, iar v86 încarcă binarul ca
+                        dischetă.
+                    </div>
+                    <div id="screen_container">
+                        <div
+                            style="
+                                white-space: pre;
+                                font: 14px monospace;
+                                line-height: 14px;
+                            "
+                        ></div>
+                        <canvas></canvas>
+                    </div>
+                </div>
+                <div class="play-screen-bar">
+                    <div>
+                        <button
+                            type="button"
+                            id="restart-vm-btn"
+                            class="link-btn"
+                            disabled
+                        >
+                            Reboot
+                        </button>
+                        ·
+                        <button
+                            type="button"
+                            id="stop-vm-btn"
+                            class="link-btn"
+                            disabled
+                        >
+                            Oprește
+                        </button>
+                    </div>
+                    <span class="meta">i386 · real mode (SeaBIOS)</span>
+                </div>
+            </div>
+
+            <div class="play-log-card">
+                <div class="play-screen-bar">
+                    <span>Jurnal NASM / VM</span>
+                    <button type="button" id="clear-logs" class="link-btn">
+                        șterge
+                    </button>
+                </div>
+                <pre id="console-logs" class="play-log"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/v86/build/libv86.js"></script>
+<script src="/static/playground.js"></script>
+
+{{template "footer" .}} {{end}}

@@ -9,15 +9,17 @@
             de operare
         </title>
         <link rel="stylesheet" href="/static/style.css" />
+        <link rel="stylesheet" href="/static/playground.css" />
     </head>
     <body>
         <header class="site-header">
             <a class="brand" href="/"
-                >&gt;<span class="cursor">_</span> boot/dev</a
+                >><span class="cursor">_</span> boot/dev</a
             >
             <nav>
                 <a href="/">Acasă</a>
                 <a href="/articles">Jurnal</a>
+                <a href="/playground">Playground</a>
                 <a href="/quiz">Quiz</a>
                 <a href="/bibliografie">Bibliografie</a>
                 {{if .User}} {{if .User.IsAdmin}}<a href="/admin">Admin</a
