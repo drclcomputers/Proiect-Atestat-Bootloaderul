@@ -8,6 +8,8 @@ import (
 	"errors"
 	"net/http"
 	"time"
+	"net/url"
+	"strings"
 )
 
 const sessionCookieName = "session_token"
@@ -65,7 +67,7 @@ func destroySession(token string) {
 	db.Exec(`DELETE FROM sessions WHERE token = ?`, token)
 }
 
-// currentUser returnează userul conectat
+// currentUser returneaza userul conectat
 func currentUser(r *http.Request) *User {
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil {
@@ -145,6 +147,30 @@ func registerUser(username, password string) (*User, error) {
 	return getUserByID(id)
 }
 
+func loginRedirect(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/login?next="+url.QueryEscape(r.URL.Path), http.StatusSeeOther)
+}
+
+func requireUser(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if currentUser(r) == nil {
+			loginRedirect(w, r)
+			return
+		}
+		next(w, r)
+	}
+}
+
+func requireUserAPI(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if currentUser(r) == nil {
+			http.Error(w, "trebuie să fii autentificat", http.StatusUnauthorized)
+			return
+		}
+		next(w, r)
+	}
+}
+
 // Handlere HTTP care servesc fișierele HTML serverului
 func registerPageHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, "register", PageData{Title: "Inregistrare"})
@@ -177,6 +203,14 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, r, "login", PageData{Title: "Autentificare"})
 }
 
+// Cineva poate trimite un link malițios si dupa logare poate ajunge acel site
+func safeNext(n string) string {
+	if !strings.HasPrefix(n, "/") || strings.HasPrefix(n, "//") || strings.HasPrefix(n, `/\`) {
+		return "/"
+	}
+	return n
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.FormValue("username")
@@ -193,7 +227,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	setSessionCookie(w, token)
-	next := r.URL.Query().Get("next")
+	next := safeNext(r.URL.Query().Get("next"))
 	if next == "" {
 		next = "/"
 	}

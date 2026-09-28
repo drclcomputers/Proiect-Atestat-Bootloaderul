@@ -52,9 +52,9 @@ func main() {
 	mux.HandleFunc("POST /login", loginHandler)
 	mux.HandleFunc("POST /logout", logoutHandler)
 
-	mux.HandleFunc("GET /playground/nasm", nasmStatusHandler)
-	mux.HandleFunc("GET /playground", playgroundPageHandler)
-	mux.HandleFunc("POST /playground/assemble", assembleHandler)
+	mux.HandleFunc("GET /playground/nasm", requireUserAPI(nasmStatusHandler))
+	mux.HandleFunc("GET /playground", requireUser(playgroundPageHandler))
+	mux.HandleFunc("POST /playground/assemble", requireUserAPI(assembleHandler))
 
 	// Admin
 	mux.HandleFunc("GET /admin", requireAdmin(adminDashboardHandler))
