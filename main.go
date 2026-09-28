@@ -78,7 +78,7 @@ func main() {
 	mux.HandleFunc("POST /admin/users/{id}/delete", requireAdmin(adminUserDeleteHandler))
 
 	addr := "127.0.0.1:8080"
-	log.Println("Server pornit → http://localhost:8080")
+	log.Println("Server pornit → http://localhost" + addr)
 	log.Fatal(http.ListenAndServe(addr, logRequests(mux)))
 }
 

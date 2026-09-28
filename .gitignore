@@ -1,3 +1,5 @@
 atestat.db
 .DS_Store
 atestat
+*.exe
+*.sh

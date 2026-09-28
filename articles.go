@@ -61,8 +61,8 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "eroare server", http.StatusInternalServerError)
 		return
 	}
-	if len(articles) > 4 {
-		articles = articles[:4]
+	if len(articles) > 3 {
+		articles = articles[:3]
 	}
 	render(w, r, "home", PageData{Title: "Acasă", Data: articles})
 }

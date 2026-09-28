@@ -508,16 +508,6 @@ a:hover {
     flex-shrink: 0;
 }
 
-.home-grid > .card:nth-child(4) {
-    display: none;
-}
-
-@media (max-width: 799px) {
-    .home-grid > .card:nth-child(4) {
-        display: block;
-    }
-}
-
 @media (max-width: 830px) {
     .admin-table,
     .admin-table thead,
