@@ -141,7 +141,7 @@ body:has(.play-layout) .container {
 .play-log {
     margin: 0;
     padding: 0.7rem 0.85rem;
-    max-height: 180px;
+    max-height: 120px;
     overflow: auto;
     background: var(--code-bg);
     font-size: 0.78rem;

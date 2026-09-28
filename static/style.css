@@ -508,12 +508,12 @@ a:hover {
     flex-shrink: 0;
 }
 
-.card-grid > .card:nth-child(4) {
+.home-grid > .card:nth-child(4) {
     display: none;
 }
 
 @media (max-width: 799px) {
-    .card-grid > .card:nth-child(4) {
+    .home-grid > .card:nth-child(4) {
         display: block;
     }
 }

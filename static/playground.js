@@ -1,8 +1,7 @@
 (function () {
-    const V86_WASM = "https://cdn.jsdelivr.net/npm/v86/build/v86.wasm";
-    const BIOS = "https://cdn.jsdelivr.net/gh/copy/v86@master/bios/seabios.bin";
-    const VGA_BIOS =
-        "https://cdn.jsdelivr.net/gh/copy/v86@master/bios/vgabios.bin";
+    const V86_WASM = "/static/vendor/v86/v86.wasm";
+    const BIOS = "/static/vendor/v86/seabios.bin";
+    const VGA_BIOS = "/static/vendor/v86/vgabios.bin";
     const FLOPPY_SIZE = 1474560; // 1.44 MB
 
     const templates = {
@@ -209,6 +208,12 @@ dw 0xaa55
             headers: { "Content-Type": "text/plain; charset=utf-8" },
             body: editor.value,
         });
+
+        if (res.status === 401) {
+            location.href = "/login?next=/playground";
+            throw new Error("not logged in");
+        }
+
         const buf = await res.arrayBuffer();
         if (!res.ok) {
             const err = new TextDecoder().decode(buf);
@@ -247,9 +252,7 @@ dw 0xaa55
         if (emulator) {
             try {
                 emulator.destroy();
-            } catch (e) {
-                /* ignore */
-            }
+            } catch (e) {}
             emulator = null;
         }
         placeholder.style.display = "none";
