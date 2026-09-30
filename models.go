@@ -11,6 +11,10 @@ type User struct {
 	CreatedAt    time.Time
 }
 
+const mainAdminID int64 = 1
+
+func (u User) IsMainAdmin() bool { return u.ID == mainAdminID }
+
 type Article struct {
 	ID          int64
 	Slug        string

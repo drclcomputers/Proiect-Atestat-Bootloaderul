@@ -17,7 +17,39 @@
         <tr>
             <td data-label="ID">{{.ID}}</td>
             <td data-label="Utilizator">{{.Username}}</td>
-            <td data-label="Admin">{{if .IsAdmin}}Da{{else}}Nu{{end}}</td>
+            <td data-label="Admin">
+                {{if or .IsMainAdmin (eq .ID $.User.ID)}}
+                <span
+                    class="role-locked"
+                    title="{{if .IsMainAdmin}}Contul de admin principal nu poate fi modificat{{else}}Nu îți poți schimba propriul rol{{end}}"
+                >
+                    {{if .IsMainAdmin}}Admin principal{{else}}Admin (tu){{end}}
+                </span>
+                {{else}}
+                <form
+                    method="post"
+                    action="/admin/users/{{.ID}}/toggle-admin"
+                    class="role-form"
+                    onsubmit="return confirm('{{if .IsAdmin}}Elimini drepturile de admin pentru {{.Username}}?{{else}}Faci din {{.Username}} administrator?{{end}}');"
+                >
+                    <button
+                        type="submit"
+                        class="role-switch {{if .IsAdmin}}on{{else}}off{{end}}"
+                        role="switch"
+                        aria-checked="{{if .IsAdmin}}true{{else}}false{{end}}"
+                        aria-label="Admin pentru {{.Username}}"
+                        title="{{if .IsAdmin}}Elimină admin{{else}}Fă admin{{end}}"
+                    >
+                        <span class="knob"></span>
+                    </button>
+                    <span
+                        class="role-label {{if .IsAdmin}}on{{else}}off{{end}}"
+                    >
+                        {{if .IsAdmin}}Admin{{else}}Utilizator{{end}}
+                    </span>
+                </form>
+                {{end}}
+            </td>
             <td data-label="Creat la">
                 {{.CreatedAt.Format "02.01.2006 15:04"}}
             </td>

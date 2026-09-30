@@ -69,6 +69,7 @@ func main() {
 	mux.HandleFunc("GET /admin/quiz", requireAdmin(adminQuizHandler))
 	mux.HandleFunc("POST /admin/quiz/new", requireAdmin(adminQuizCreateHandler))
 	mux.HandleFunc("POST /admin/quiz/{id}/delete", requireAdmin(adminQuizDeleteHandler))
+	mux.HandleFunc("GET /admin/quiz/results", requireAdmin(adminQuizResultsHandler))
 
 	mux.HandleFunc("GET /admin/comments", requireAdmin(adminCommentsHandler))
 	mux.HandleFunc("POST /admin/comments/{id}/delete", requireAdmin(adminCommentDeleteHandler))
@@ -76,6 +77,7 @@ func main() {
 	mux.HandleFunc("GET /admin/users", requireAdmin(adminUsersHandler))
 	mux.HandleFunc("POST /admin/users/{id}/password", requireAdmin(adminChangePasswordHandler))
 	mux.HandleFunc("POST /admin/users/{id}/delete", requireAdmin(adminUserDeleteHandler))
+	mux.HandleFunc("POST /admin/users/{id}/toggle-admin", requireAdmin(adminToggleAdminHandler))
 
 	addr := "127.0.0.1:8080"
 	log.Println("Server pornit → http://localhost:8080")

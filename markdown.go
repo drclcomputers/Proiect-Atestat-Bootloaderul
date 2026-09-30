@@ -33,7 +33,7 @@ var md = goldmark.New(
 	),
 )
 
-// renderMarkdown transformă Markdown (inclusiv blocuri ~~~asm / ~~~bash) în HTML.
+// renderMarkdown transformă Markdown în HTML
 func renderMarkdown(src string) template.HTML {
 	var buf bytes.Buffer
 	if err := md.Convert([]byte(src), &buf); err != nil {

@@ -1,0 +1,46 @@
+{{define "admin-quiz-results"}} {{template "header" .}}
+
+<h1>Rezultate quiz</h1>
+
+<div class="stat-grid">
+    <div class="stat">
+        <span class="num">{{.Data.Attempts}}</span> încercări
+    </div>
+    <div class="stat">
+        <span class="num">{{.Data.AvgPct}}%</span> scor mediu
+    </div>
+    <div class="stat">
+        <span class="num">{{.Data.BestPct}}%</span> cel mai bun scor
+    </div>
+</div>
+
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Utilizator</th>
+            <th>Scor</th>
+            <th>Procent</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data.Results}}
+        <tr>
+            <td data-label="Utilizator">{{.Username}}</td>
+            <td data-label="Scor">{{.Score}} / {{.Total}}</td>
+            <td data-label="Procent">{{.Percent}}%</td>
+            <td data-label="Data">{{.TakenAt.Format "02.01.2006 15:04"}}</td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="4">Niciun rezultat încă.</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+<p style="margin-top: 1.5rem">
+    <a class="btn" href="/admin">← Înapoi la panou</a>
+</p>
+
+{{template "footer" .}} {{end}}

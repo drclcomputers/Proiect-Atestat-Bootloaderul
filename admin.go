@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var slugRe = regexp.MustCompile(`[^a-z0-9]+`)
@@ -21,6 +22,23 @@ type adminStats struct {
 	CommentCount int
 	QuizCount    int
 	ResultCount  int
+}
+
+type quizResultRow struct {
+	ID       int64
+	UserID   int64
+	Username string
+	Score    int
+	Total    int
+	Percent  int
+	TakenAt  time.Time
+}
+
+type quizResultsView struct {
+	Results  []quizResultRow
+	Attempts int
+	AvgPct   int
+	BestPct  int
 }
 
 func adminDashboardHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,6 +151,44 @@ func adminQuizDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/quiz", http.StatusSeeOther)
 }
 
+func adminQuizResultsHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query(
+		`SELECT r.id, r.user_id, u.username, r.score, r.total, r.taken_at
+		 FROM quiz_results r
+		 JOIN users u ON u.id = r.user_id
+		 ORDER BY r.taken_at DESC`,
+	)
+	if err != nil {
+		http.Error(w, "eroare server", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var v quizResultsView
+	sum := 0
+	for rows.Next() {
+		var x quizResultRow
+		if err := rows.Scan(&x.ID, &x.UserID, &x.Username, &x.Score, &x.Total, &x.TakenAt); err != nil {
+			http.Error(w, "eroare server", http.StatusInternalServerError)
+			return
+		}
+		if x.Total > 0 {
+			x.Percent = x.Score * 100 / x.Total
+		}
+		sum += x.Percent
+		if x.Percent > v.BestPct {
+			v.BestPct = x.Percent
+		}
+		v.Results = append(v.Results, x)
+	}
+	v.Attempts = len(v.Results)
+	if v.Attempts > 0 {
+		v.AvgPct = sum / v.Attempts
+	}
+
+	render(w, r, "admin-quiz-results", PageData{Title: "Rezultate quiz", Data: v})
+}
+
 // Comentarii
 func adminCommentsHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query(
@@ -215,4 +271,31 @@ func adminUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	db.Exec(`DELETE FROM users WHERE id = ?`, id)
 	http.Redirect(w, r, "/admin/users?ok=deleted", http.StatusSeeOther)
+}
+
+func adminToggleAdminHandler(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	current := currentUser(r)
+
+	refuse := func(msg string) {
+		users, _ := listUsers()
+		render(w, r, "admin-users", PageData{
+			Title: "Administrare utilizatori", Flash: msg, FlashKind: "error", Data: users,
+		})
+	}
+
+	if id == mainAdminID {
+		refuse("Contul de admin principal nu poate fi modificat.")
+		return
+	}
+	if current != nil && current.ID == id {
+		refuse("Nu îți poți schimba propriul rol.")
+		return
+	}
+
+	if _, err := db.Exec(`UPDATE users SET is_admin = 1 - is_admin WHERE id = ?`, id); err != nil {
+		http.Error(w, "eroare server", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/admin/users?ok=role", http.StatusSeeOther)
 }

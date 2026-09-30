@@ -584,3 +584,84 @@ a:hover {
         align-self: flex-start;
     }
 }
+
+.role-form {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+}
+
+.role-switch {
+    position: relative;
+    width: 42px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+.role-switch.on {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+.role-switch.off {
+    background: rgba(248, 81, 73, 0.25);
+    border-color: var(--danger);
+}
+.role-switch:hover {
+    filter: brightness(1.15);
+}
+.role-switch:focus-visible {
+    outline: 2px solid var(--text-dim);
+    outline-offset: 2px;
+}
+
+.role-switch .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text);
+    transition: transform 0.2s ease;
+}
+.role-switch.on .knob {
+    transform: translateX(20px);
+}
+
+.role-label {
+    font-size: 0.85rem;
+    min-width: 5.2rem;
+}
+.role-label.on {
+    color: var(--accent);
+}
+.role-label.off {
+    color: var(--danger);
+}
+
+.role-locked {
+    display: inline-block;
+    padding: 0.1rem 0.65rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    background: rgba(63, 185, 80, 0.15);
+    color: var(--accent);
+    font-size: 0.85rem;
+    cursor: help;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .role-switch,
+    .role-switch .knob {
+        transition: none;
+    }
+}
